@@ -2,137 +2,644 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔐 Hacking Puzzle Game | Supabase Edition</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>⚡ NEOHACK | CYBER PUZZLE TERMINAL ⚡</title>
+    <!-- Google Fonts & Font Awesome for Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- React & ReactDOM CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background: radial-gradient(circle at 20% 30%, #0a0f1e, #03050b);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Matrix rain background effect */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.2;
+            background: repeating-linear-gradient(0deg, #0f0 0px, #0f0 2px, transparent 2px, transparent 8px);
+            animation: scanlines 8s linear infinite;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(10px); }
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Glitch text effect */
+        .glitch-text {
+            font-size: 2.2rem;
+            font-weight: bold;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            color: #0f0;
+            text-shadow: 0.05em 0 0 rgba(255,0,0,0.5), -0.05em -0.025em 0 rgba(0,255,0,0.3);
+            animation: glitch 0.3s infinite;
+            letter-spacing: 4px;
+        }
+
+        @keyframes glitch {
+            0% { text-shadow: 0.05em 0 0 #ff00c1, -0.05em -0.025em 0 #00fff9; }
+            25% { text-shadow: -0.05em 0 0 #ff00c1, 0.05em 0.025em 0 #00fff9; }
+            50% { text-shadow: 0.025em 0.05em 0 #ff00c1, -0.025em -0.05em 0 #00fff9; }
+            100% { text-shadow: -0.025em 0 0 #ff00c1, 0.025em -0.025em 0 #00fff9; }
+        }
+
+        /* Terminal card styling */
+        .terminal-card {
+            background: rgba(0, 10, 20, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid #0f0;
+            border-radius: 24px;
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.2), inset 0 0 10px rgba(0,255,0,0.1);
+            padding: 30px;
+            transition: all 0.2s ease;
+        }
+
+        .cyber-button {
+            background: linear-gradient(95deg, #0b2f1a, #021a0b);
+            border: 1.5px solid #0f0;
+            color: #0f0;
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: bold;
+            padding: 12px 24px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 8px #0f0;
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .cyber-button:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 20px #0f0;
+            transform: scale(0.98);
+        }
+
+        input {
+            background: #010a14;
+            border: 1px solid #0f0;
+            padding: 12px 15px;
+            color: #0f0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            width: 100%;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            border-color: #ff00c1;
+            box-shadow: 0 0 10px #ff00c1;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            color: #0f0;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .hacker-dashboard {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+        }
+
+        .sidebar-card {
+            background: rgba(0, 20, 15, 0.7);
+            border-radius: 20px;
+            padding: 20px;
+            border-left: 4px solid #0f0;
+        }
+
+        .stat-line {
+            color: #8eff8e;
+            font-size: 0.9rem;
+            padding: 6px 0;
+            border-bottom: 1px dashed #2a6b2a;
+        }
+
+        .action-btn {
+            background: #0a1f1a;
+            border: 1px solid #0f0;
+            color: #0f0;
+            padding: 10px;
+            margin: 8px 0;
+            width: 100%;
+            font-family: monospace;
+            cursor: pointer;
+            transition: 0.1s linear;
+            font-weight: bold;
+        }
+
+        .action-btn:hover {
+            background: #0f0;
+            color: black;
+            box-shadow: 0 0 10px #0f0;
+        }
+
+        .leaderboard-list {
+            margin-top: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            color: #aaffaa;
+            font-size: 0.8rem;
+            border-bottom: 1px dotted #2b6b2b;
+        }
+
+        .puzzle-terminal {
+            background: #021007;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #0f0;
+            margin-bottom: 20px;
+        }
+
+        .puzzle-question {
+            background: #000c0c;
+            padding: 20px;
+            margin: 15px 0;
+            font-size: 1.2rem;
+            border-left: 6px solid #0f0;
+            color: #bfffb0;
+            min-height: 120px;
+        }
+
+        .console-log {
+            background: #010c0c;
+            border-radius: 16px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #2a7a2a;
+        }
+
+        .console-message {
+            font-family: monospace;
+            font-size: 0.8rem;
+            padding: 4px 0;
+            border-bottom: 0.5px solid #1c441c;
+        }
+
+        .success { color: #0f0; text-shadow: 0 0 2px #0f0; }
+        .error { color: #ff3366; }
+        .info { color: #2ad4ff; }
+
+        .reward-badge {
+            background: #0f0f1a;
+            padding: 5px 12px;
+            border-radius: 20px;
+            color: gold;
+        }
+
+        @media (max-width: 800px) {
+            .hacker-dashboard { grid-template-columns: 1fr; }
+            .glitch-text { font-size: 1.2rem; }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            background: #021a10;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0f0;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
-    <div class="matrix-bg"></div>
-    
-    <div id="loginPage" class="container active">
-        <div class="terminal">
-            <div class="terminal-header">
-                <span class="terminal-title">🔐 HACKING GAME TERMINAL v2.0 [SUPABASE]</span>
-                <div class="terminal-controls">
-                    <span class="control">─</span>
-                    <span class="control">□</span>
-                    <span class="control">×</span>
-                </div>
-            </div>
-            
-            <div class="glitch" data-text="ACCESS SECURE SYSTEM">ACCESS SECURE SYSTEM</div>
-            
-            <div class="login-form">
-                <div class="input-group">
-                    <label>> USERNAME:_</label>
-                    <input type="text" id="loginUsername" placeholder="Enter username">
-                </div>
-                <div class="input-group">
-                    <label>> PASSWORD:_</label>
-                    <input type="password" id="loginPassword" placeholder="Enter password">
-                </div>
-                <button onclick="login()" class="cyber-button">⚡ INITIALIZE ACCESS ⚡</button>
-                
-                <div style="text-align: center; margin: 15px 0; color: #00ff41;">━━━━━━━ OR ━━━━━━━</div>
-                
-                <button onclick="supabaseLogin()" class="cyber-button" style="background: linear-gradient(135deg, #3b82f6, #1e40af);">
-                    🔐 LOGIN WITH SUPABASE
-                </button>
-                
-                <p class="register-link">No account? <a onclick="showRegister()">>> CREATE NEW HACKER PROFILE <<</a></p>
-            </div>
-        </div>
-    </div>
+<div class="matrix-bg"></div>
+<div id="root" class="app-container"></div>
 
-    <div id="registerPage" class="container">
-        <div class="terminal">
-            <div class="terminal-header">
-                <span class="terminal-title">🔐 REGISTRATION PROTOCOL [SUPABASE]</span>
-                <div class="terminal-controls">
-                    <span class="control">─</span>
-                    <span class="control">□</span>
-                    <span class="control">×</span>
-                </div>
-            </div>
-            
-            <div class="glitch" data-text="CREATE HACKER IDENTITY">CREATE HACKER IDENTITY</div>
-            
-            <div class="login-form">
-                <div class="input-group">
-                    <label>> USERNAME:_</label>
-                    <input type="text" id="regUsername" placeholder="Choose username">
-                </div>
-                <div class="input-group">
-                    <label>> EMAIL:_</label>
-                    <input type="email" id="regEmail" placeholder="Enter email">
-                </div>
-                <div class="input-group">
-                    <label>> PASSWORD:_</label>
-                    <input type="password" id="regPassword" placeholder="Create password">
-                </div>
-                <button onclick="register()" class="cyber-button">🚀 DEPLOY HACKER PROFILE 🚀</button>
-                <p class="register-link">Already have access? <a onclick="showLogin()">>> RETURN TO LOGIN <<</a></p>
-            </div>
-        </div>
-    </div>
+<script type="text/babel">
+    // -------------------- PUZZLE GENERATOR (HACKING THEMES) --------------------
+    const puzzleBank = [
+        { text: "Decode hex to ASCII: 68 61 63 6b 65 72", answer: "hacker", hint: "hex -> text" },
+        { text: "What is 2^10 in decimal?", answer: "1024", hint: "binary prefix" },
+        { text: "Binary: 01001001 01001110 01001010 01000101 01000011 01010100", answer: "inject", hint: "binary to ascii" },
+        { text: "Crack the Caesar cipher: 'FDWH' (shift 3)", answer: "cate", hint: "shift back by 3" },
+        { text: "What port is commonly used for HTTP?", answer: "80", hint: "web default" },
+        { text: "Reverse string: 'esreveR'", answer: "reverse", hint: "flip it" },
+        { text: "MD5 of 'admin' is 21232f297a57a5a743894a0e4a801fc3? first 5 chars?", answer: "21232", hint: "hash prefix" },
+        { text: "What does SQL stand for?", answer: "structured query language", hint: "database" },
+        { text: "ROT13: 'unpxre'", answer: "hacker", hint: "rot13" },
+        { text: "How many bits in a byte?", answer: "8", hint: "basic" }
+    ];
 
-    <div id="gamePage" class="container">
-        <div class="game-dashboard">
-            <div class="sidebar">
-                <div class="hacker-card">
-                    <div class="hacker-icon">👾</div>
-                    <div class="hacker-stats">
-                        <div class="stat-line">> ID: <span id="playerUsername">H4CK3R</span></div>
-                        <div class="stat-line">> LVL: <span id="playerLevel">1</span></div>
-                        <div class="stat-line">> XP: <span id="playerXp">0</span>/<span id="nextLevelXp">500</span></div>
-                        <div class="stat-line">> COINS: 💰 <span id="playerCoins">0</span></div>
-                        <div class="stat-line">> VAULT: 🔒 LVL <span id="vaultLevel">1</span></div>
-                        <div class="stat-line">> HACKS: 💀 <span id="successfulHacks">0</span></div>
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <button onclick="getNewPuzzle()" class="action-btn">🎲 GENERATE PUZZLE</button>
-                    <button onclick="upgradeVault()" class="action-btn">🔒 UPGRADE VAULT</button>
-                    <button onclick="logout()" class="action-btn">🚪 DISCONNECT</button>
-                </div>
-                
-                <div class="leaderboard">
-                    <div class="section-title">🏆 TOP HACKERS 🏆</div>
-                    <div id="leaderboardList" class="leaderboard-list">
-                        <!-- Dynamic leaderboard -->
-                    </div>
-                </div>
-            </div>
-            
-            <div class="main-content">
-                <div class="puzzle-terminal">
-                    <div class="puzzle-header">
-                        <span class="puzzle-type" id="puzzleType">AWAITING INPUT</span>
-                        <span class="puzzle-reward">REWARD: <span id="puzzleReward">0</span> XP</span>
-                    </div>
-                    <div class="puzzle-question" id="puzzleQuestion">
-                        <div class="cursor-blink">>_</div> Click "Generate Puzzle" to begin your hack
-                    </div>
-                    <div class="puzzle-input-area">
-                        <input type="text" id="puzzleAnswer" placeholder="Enter your answer here..." disabled>
-                        <button id="submitBtn" onclick="submitAnswer()" disabled>🚀 EXECUTE HACK 🚀</button>
-                    </div>
-                </div>
-                
-                <div class="console-log">
-                    <div class="console-header">> SYSTEM_LOG_[ACTIVE]</div>
-                    <div id="consoleMessages" class="console-messages">
-                        <div class="console-message success">>> SYSTEM READY. SUAPBASE CONNECTED.</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    function generateRandomPuzzle() {
+        const idx = Math.floor(Math.random() * puzzleBank.length);
+        const base = puzzleBank[idx];
+        const xpReward = Math.floor(Math.random() * 120) + 80; // 80-200 XP
+        return {
+            id: Date.now() + idx,
+            question: base.text,
+            answer: base.answer.toLowerCase().trim(),
+            reward: xpReward,
+            hint: base.hint
+        };
+    }
 
-    <script src="script.js"></script>
+    // -------------------- MAIN REACT APP --------------------
+    const { useState, useEffect } = React;
+
+    // Mock Supabase-like localstorage for demo (full persistence & leaderboard)
+    // Structure: users: [{ id, username, password, email, level, xp, coins, vaultLevel, hacks }]
+    // but to keep simple yet fully functional with ranking
+    const STORAGE_USERS = "neoHack_users";
+    const STORAGE_SESSION = "neoHack_session";
+
+    function initializeDB() {
+        if (!localStorage.getItem(STORAGE_USERS)) {
+            const defaultUsers = [
+                { id: "u1", username: "GH05T", password: "pass123", email: "ghost@cyber.net", level: 3, xp: 420, totalXp: 420, coins: 1250, vaultLevel: 2, hacks: 12 },
+                { id: "u2", username: "ZER0DAY", password: "zero123", email: "zero@darkweb", level: 5, xp: 890, totalXp: 890, coins: 3400, vaultLevel: 3, hacks: 28 }
+            ];
+            localStorage.setItem(STORAGE_USERS, JSON.stringify(defaultUsers));
+        }
+    }
+    initializeDB();
+
+    function getUsers() {
+        return JSON.parse(localStorage.getItem(STORAGE_USERS));
+    }
+    function saveUsers(users) {
+        localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+    }
+    function getCurrentUser() {
+        const session = localStorage.getItem(STORAGE_SESSION);
+        if (!session) return null;
+        const userId = session;
+        const users = getUsers();
+        return users.find(u => u.id === userId) || null;
+    }
+    function setSession(userId) {
+        localStorage.setItem(STORAGE_SESSION, userId);
+    }
+    function clearSession() {
+        localStorage.removeItem(STORAGE_SESSION);
+    }
+
+    // Helper: update user in storage
+    function updateUser(updatedUser) {
+        const users = getUsers();
+        const index = users.findIndex(u => u.id === updatedUser.id);
+        if (index !== -1) users[index] = updatedUser;
+        saveUsers(users);
+        setSession(updatedUser.id);
+    }
+
+    // Leaderboard sorted by level & xp
+    function getLeaderboard() {
+        const users = getUsers();
+        return [...users].sort((a,b) => {
+            if (a.level !== b.level) return b.level - a.level;
+            return b.totalXp - a.totalXp;
+        }).slice(0, 8);
+    }
+
+    // ---------- Components ----------
+    const LoginPage = ({ onLoginSuccess }) => {
+        const [username, setUsername] = useState("");
+        const [password, setPassword] = useState("");
+        const [error, setError] = useState("");
+
+        const handleLogin = () => {
+            const users = getUsers();
+            const user = users.find(u => u.username === username && u.password === password);
+            if (user) {
+                setSession(user.id);
+                onLoginSuccess(user);
+            } else {
+                setError("ACCESS DENIED: Invalid credentials");
+            }
+        };
+
+        const demoQuick = () => {
+            const demoUser = getUsers().find(u => u.username === "GH05T");
+            if(demoUser) { setSession(demoUser.id); onLoginSuccess(demoUser); }
+            else setError("Demo profile missing");
+        };
+
+        return (
+            <div className="terminal-card" style={{maxWidth: "500px", margin: "60px auto"}}>
+                <div className="glitch-text" style={{textAlign:"center", marginBottom:"30px"}}>
+                    <i className="fas fa-skull"></i> NEOHACK v3.0
+                </div>
+                <div className="input-group">
+                    <label><i className="fas fa-user-secret"></i> LOGIN ID</label>
+                    <input type="text" placeholder="hacker alias" value={username} onChange={e=>setUsername(e.target.value)} onKeyPress={e=>e.key==='Enter'&&handleLogin()}/>
+                </div>
+                <div className="input-group">
+                    <label><i className="fas fa-key"></i> ACCESS CODE</label>
+                    <input type="password" placeholder="•••••••" value={password} onChange={e=>setPassword(e.target.value)} onKeyPress={e=>e.key==='Enter'&&handleLogin()}/>
+                </div>
+                {error && <div className="console-message error" style={{marginBottom:12}}>{'>'}  {error}</div>}
+                <button className="cyber-button" onClick={handleLogin}><i className="fas fa-terminal"></i> BREACH SYSTEM</button>
+                <button className="cyber-button" onClick={demoQuick} style={{background:"#1f3a2f", marginTop:10}}><i className="fas fa-ghost"></i> GUEST HACK (GH05T)</button>
+                <div style={{textAlign:"center", marginTop:20, color:"#0f0"}}>
+                    <span onClick={() => onLoginSuccess(null, true)} style={{cursor:"pointer", textDecoration:"underline"}}>⟳ REGISTER NEW HACKER?</span>
+                </div>
+            </div>
+        );
+    };
+
+    const RegisterPage = ({ onRegisterSuccess }) => {
+        const [username, setUsername] = useState("");
+        const [email, setEmail] = useState("");
+        const [password, setPassword] = useState("");
+        const [error, setError] = useState("");
+
+        const handleRegister = () => {
+            if (!username || !password || !email) {
+                setError("All fields required");
+                return;
+            }
+            const users = getUsers();
+            if (users.find(u => u.username === username)) {
+                setError("Username already exists");
+                return;
+            }
+            const newId = "u" + Date.now();
+            const newUser = {
+                id: newId,
+                username: username,
+                password: password,
+                email: email,
+                level: 1,
+                xp: 0,
+                totalXp: 0,
+                coins: 500,
+                vaultLevel: 1,
+                hacks: 0
+            };
+            users.push(newUser);
+            saveUsers(users);
+            setSession(newId);
+            onRegisterSuccess(newUser);
+        };
+
+        return (
+            <div className="terminal-card" style={{maxWidth:"500px", margin:"60px auto"}}>
+                <div className="glitch-text" style={{fontSize:"1.6rem", textAlign:"center"}}>⚡ REGISTER PROFILE ⚡</div>
+                <div className="input-group"><label>USERNAME</label><input value={username} onChange={e=>setUsername(e.target.value)}/></div>
+                <div className="input-group"><label>EMAIL</label><input value={email} onChange={e=>setEmail(e.target.value)}/></div>
+                <div className="input-group"><label>PASSWORD</label><input type="password" value={password} onChange={e=>setPassword(e.target.value)}/></div>
+                {error && <div className="error console-message">{error}</div>}
+                <button className="cyber-button" onClick={handleRegister}><i className="fas fa-id-card"></i> DEPLOY IDENTITY</button>
+                <div style={{textAlign:"center", marginTop:15}}><span onClick={()=>onRegisterSuccess(null, false)} style={{cursor:"pointer", color:"#0f0"}}>‹ BACK TO LOGIN ›</span></div>
+            </div>
+        );
+    };
+
+    const GameDashboard = ({ user, onLogout }) => {
+        const [currentUser, setCurrentUser] = useState(user);
+        const [currentPuzzle, setCurrentPuzzle] = useState(null);
+        const [answerInput, setAnswerInput] = useState("");
+        const [consoleMsgs, setConsoleMsgs] = useState([">> SYSTEM ONLINE. ENCRYPTION ACTIVE."]);
+        const [leaderboard, setLeaderboard] = useState(getLeaderboard());
+
+        const addConsole = (msg, type="info") => {
+            setConsoleMsgs(prev => [...prev, { text: msg, type }]);
+        };
+
+        const refreshLeaderboard = () => setLeaderboard(getLeaderboard());
+
+        const updatePlayerStats = (updated) => {
+            updateUser(updated);
+            setCurrentUser(updated);
+            refreshLeaderboard();
+        };
+
+        const getNewPuzzle = () => {
+            const puzzle = generateRandomPuzzle();
+            setCurrentPuzzle(puzzle);
+            setAnswerInput("");
+            addConsole(`🕸️ NEW HACK TARGET: ${puzzle.question.substring(0, 60)}... [REWARD: ${puzzle.reward} XP]`, "info");
+        };
+
+        const submitAnswer = () => {
+            if (!currentPuzzle) {
+                addConsole("⚠️ NO ACTIVE PUZZLE. Generate one first.", "error");
+                return;
+            }
+            const userAnswer = answerInput.trim().toLowerCase();
+            if (userAnswer === currentPuzzle.answer) {
+                // success hack
+                let gainedXp = currentPuzzle.reward;
+                let gainedCoins = Math.floor(gainedXp * 0.8) + 15;
+                let newXp = currentUser.xp + gainedXp;
+                let newTotalXp = currentUser.totalXp + gainedXp;
+                let newLevel = currentUser.level;
+                let xpForNext = newLevel * 400;
+                let levelUp = false;
+                while (newXp >= xpForNext) {
+                    newXp -= xpForNext;
+                    newLevel++;
+                    xpForNext = newLevel * 400;
+                    levelUp = true;
+                }
+                let newCoins = currentUser.coins + gainedCoins;
+                let newHacks = currentUser.hacks + 1;
+                const updatedUser = {
+                    ...currentUser,
+                    xp: newXp,
+                    totalXp: newTotalXp,
+                    level: newLevel,
+                    coins: newCoins,
+                    hacks: newHacks
+                };
+                updatePlayerStats(updatedUser);
+                addConsole(`✔️ HACK SUCCESSFUL! +${gainedXp} XP, +${gainedCoins} 💰`, "success");
+                if (levelUp) addConsole(`🎉 LEVEL UP! You are now level ${newLevel} 🎉`, "success");
+                setCurrentPuzzle(null);
+                setAnswerInput("");
+                refreshLeaderboard();
+            } else {
+                addConsole(`❌ ACCESS FAILURE: "${answerInput}" is incorrect. HINT: ${currentPuzzle.hint}`, "error");
+            }
+        };
+
+        const upgradeVault = () => {
+            let cost = currentUser.vaultLevel * 750;
+            if (currentUser.coins >= cost) {
+                const newVault = currentUser.vaultLevel + 1;
+                const newCoins = currentUser.coins - cost;
+                const updated = { ...currentUser, vaultLevel: newVault, coins: newCoins };
+                updatePlayerStats(updated);
+                addConsole(`🔐 VAULT UPGRADED TO LEVEL ${newVault}. Security enhanced. -${cost} coins`, "success");
+            } else {
+                addConsole(`⚠️ INSUFFICIENT COINS! Need ${cost} coins. Hack more puzzles.`, "error");
+            }
+        };
+
+        useEffect(() => {
+            refreshLeaderboard();
+        }, []);
+
+        const nextLevelXp = currentUser.level * 400;
+
+        return (
+            <div className="hacker-dashboard">
+                <div className="sidebar-card">
+                    <div style={{textAlign:"center", fontSize:"3rem"}}>👾</div>
+                    <div className="stat-line"><i className="fas fa-tag"></i> AGENT: <strong>{currentUser.username}</strong></div>
+                    <div className="stat-line"><i className="fas fa-chart-line"></i> LEVEL: {currentUser.level}</div>
+                    <div className="stat-line"><i className="fas fa-star"></i> XP: {currentUser.xp} / {nextLevelXp}</div>
+                    <div className="stat-line"><i className="fas fa-coins"></i> COINS: 💰 {currentUser.coins}</div>
+                    <div className="stat-line"><i className="fas fa-shield-alt"></i> VAULT LVL: {currentUser.vaultLevel}</div>
+                    <div className="stat-line"><i className="fas fa-biohazard"></i> HACKS EXEC: {currentUser.hacks}</div>
+                    <hr style={{borderColor:"#0f0", margin:"12px 0"}}/>
+                    <button className="action-btn" onClick={getNewPuzzle}><i className="fas fa-microchip"></i> 🎲 GENERATE PUZZLE</button>
+                    <button className="action-btn" onClick={upgradeVault}><i className="fas fa-lock"></i> 🔒 UPGRADE VAULT</button>
+                    <button className="action-btn" onClick={()=>{clearSession(); onLogout();}}><i className="fas fa-power-off"></i> 🚪 DISCONNECT</button>
+                    
+                    <div className="section-title" style={{marginTop:"20px", color:"#0f0"}}>🏆 TOP HACKERS</div>
+                    <div className="leaderboard-list">
+                        {leaderboard.map((usr, idx) => (
+                            <div key={usr.id} className="leaderboard-entry">
+                                <span>{idx+1}. {usr.username}</span>
+                                <span>Lv.{usr.level} | 💀{usr.hacks}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <div className="puzzle-terminal">
+                        <div style={{display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+                            <span className="reward-badge"><i className="fas fa-bug"></i> PUZZLE SLOT</span>
+                            {currentPuzzle && <span style={{color:"#ffcc44"}}>🏆 REWARD: {currentPuzzle.reward} XP</span>}
+                        </div>
+                        <div className="puzzle-question">
+                            {currentPuzzle ? (
+                                <><i className="fas fa-question-circle"></i> {currentPuzzle.question}</>
+                            ) : (
+                                <span style={{opacity:0.7}}><i className="fas fa-dice-d6"></i> [STANDING BY] Click 'GENERATE PUZZLE' to initiate breach.</span>
+                            )}
+                        </div>
+                        <div className="puzzle-input-area" style={{display:"flex", gap:"12px", flexWrap:"wrap"}}>
+                            <input 
+                                type="text" 
+                                placeholder=">_ ENTER DECRYPTION KEY..." 
+                                value={answerInput}
+                                onChange={e=>setAnswerInput(e.target.value)}
+                                disabled={!currentPuzzle}
+                                onKeyPress={e=> e.key==='Enter' && currentPuzzle && submitAnswer()}
+                                style={{flex:2}}
+                            />
+                            <button className="cyber-button" onClick={submitAnswer} disabled={!currentPuzzle} style={{width:"auto", marginTop:0}}>
+                                🚀 EXECUTE
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="console-log">
+                        <div className="console-header" style={{color:"#0f0", marginBottom:"8px", borderBottom:"1px solid #0f0"}}>
+                            <i className="fas fa-terminal"></i> LIVE_HACK_LOG
+                        </div>
+                        <div className="console-messages">
+                            {consoleMsgs.map((msg, idx) => (
+                                <div key={idx} className={`console-message ${msg.type === "success" ? "success" : msg.type === "error" ? "error" : "info"}`}>
+                                    {'>'}  {typeof msg === 'string' ? msg : msg.text}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    // Main App Router
+    const App = () => {
+        const [page, setPage] = useState("login"); // login, register, game
+        const [user, setUser] = useState(null);
+
+        useEffect(() => {
+            const sessionUser = getCurrentUser();
+            if (sessionUser) {
+                setUser(sessionUser);
+                setPage("game");
+            }
+        }, []);
+
+        const handleLogin = (loggedUser, showRegisterFlag) => {
+            if (showRegisterFlag) {
+                setPage("register");
+            } else if (loggedUser) {
+                setUser(loggedUser);
+                setPage("game");
+            }
+        };
+
+        const handleRegisterSuccess = (newUser, goBack) => {
+            if (goBack === false) {
+                setPage("login");
+            } else if (newUser) {
+                setUser(newUser);
+                setPage("game");
+            }
+        };
+
+        const handleLogout = () => {
+            setUser(null);
+            setPage("login");
+        };
+
+        return (
+            <div>
+                {page === "login" && <LoginPage onLoginSuccess={handleLogin} />}
+                {page === "register" && <RegisterPage onRegisterSuccess={handleRegisterSuccess} />}
+                {page === "game" && user && <GameDashboard user={user} onLogout={handleLogout} />}
+            </div>
+        );
+    };
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
 </body>
 </html>
