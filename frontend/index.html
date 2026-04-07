@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Hacking Puzzle Game | Supabase Edition</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="matrix-bg"></div>
+    
+    <div id="loginPage" class="container active">
+        <div class="terminal">
+            <div class="terminal-header">
+                <span class="terminal-title">🔐 HACKING GAME TERMINAL v2.0 [SUPABASE]</span>
+                <div class="terminal-controls">
+                    <span class="control">─</span>
+                    <span class="control">□</span>
+                    <span class="control">×</span>
+                </div>
+            </div>
+            
+            <div class="glitch" data-text="ACCESS SECURE SYSTEM">ACCESS SECURE SYSTEM</div>
+            
+            <div class="login-form">
+                <div class="input-group">
+                    <label>> USERNAME:_</label>
+                    <input type="text" id="loginUsername" placeholder="Enter username">
+                </div>
+                <div class="input-group">
+                    <label>> PASSWORD:_</label>
+                    <input type="password" id="loginPassword" placeholder="Enter password">
+                </div>
+                <button onclick="login()" class="cyber-button">⚡ INITIALIZE ACCESS ⚡</button>
+                
+                <div style="text-align: center; margin: 15px 0; color: #00ff41;">━━━━━━━ OR ━━━━━━━</div>
+                
+                <button onclick="supabaseLogin()" class="cyber-button" style="background: linear-gradient(135deg, #3b82f6, #1e40af);">
+                    🔐 LOGIN WITH SUPABASE
+                </button>
+                
+                <p class="register-link">No account? <a onclick="showRegister()">>> CREATE NEW HACKER PROFILE <<</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="registerPage" class="container">
+        <div class="terminal">
+            <div class="terminal-header">
+                <span class="terminal-title">🔐 REGISTRATION PROTOCOL [SUPABASE]</span>
+                <div class="terminal-controls">
+                    <span class="control">─</span>
+                    <span class="control">□</span>
+                    <span class="control">×</span>
+                </div>
+            </div>
+            
+            <div class="glitch" data-text="CREATE HACKER IDENTITY">CREATE HACKER IDENTITY</div>
+            
+            <div class="login-form">
+                <div class="input-group">
+                    <label>> USERNAME:_</label>
+                    <input type="text" id="regUsername" placeholder="Choose username">
+                </div>
+                <div class="input-group">
+                    <label>> EMAIL:_</label>
+                    <input type="email" id="regEmail" placeholder="Enter email">
+                </div>
+                <div class="input-group">
+                    <label>> PASSWORD:_</label>
+                    <input type="password" id="regPassword" placeholder="Create password">
+                </div>
+                <button onclick="register()" class="cyber-button">🚀 DEPLOY HACKER PROFILE 🚀</button>
+                <p class="register-link">Already have access? <a onclick="showLogin()">>> RETURN TO LOGIN <<</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="gamePage" class="container">
+        <div class="game-dashboard">
+            <div class="sidebar">
+                <div class="hacker-card">
+                    <div class="hacker-icon">👾</div>
+                    <div class="hacker-stats">
+                        <div class="stat-line">> ID: <span id="playerUsername">H4CK3R</span></div>
+                        <div class="stat-line">> LVL: <span id="playerLevel">1</span></div>
+                        <div class="stat-line">> XP: <span id="playerXp">0</span>/<span id="nextLevelXp">500</span></div>
+                        <div class="stat-line">> COINS: 💰 <span id="playerCoins">0</span></div>
+                        <div class="stat-line">> VAULT: 🔒 LVL <span id="vaultLevel">1</span></div>
+                        <div class="stat-line">> HACKS: 💀 <span id="successfulHacks">0</span></div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button onclick="getNewPuzzle()" class="action-btn">🎲 GENERATE PUZZLE</button>
+                    <button onclick="upgradeVault()" class="action-btn">🔒 UPGRADE VAULT</button>
+                    <button onclick="logout()" class="action-btn">🚪 DISCONNECT</button>
+                </div>
+                
+                <div class="leaderboard">
+                    <div class="section-title">🏆 TOP HACKERS 🏆</div>
+                    <div id="leaderboardList" class="leaderboard-list">
+                        <!-- Dynamic leaderboard -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <div class="puzzle-terminal">
+                    <div class="puzzle-header">
+                        <span class="puzzle-type" id="puzzleType">AWAITING INPUT</span>
+                        <span class="puzzle-reward">REWARD: <span id="puzzleReward">0</span> XP</span>
+                    </div>
+                    <div class="puzzle-question" id="puzzleQuestion">
+                        <div class="cursor-blink">>_</div> Click "Generate Puzzle" to begin your hack
+                    </div>
+                    <div class="puzzle-input-area">
+                        <input type="text" id="puzzleAnswer" placeholder="Enter your answer here..." disabled>
+                        <button id="submitBtn" onclick="submitAnswer()" disabled>🚀 EXECUTE HACK 🚀</button>
+                    </div>
+                </div>
+                
+                <div class="console-log">
+                    <div class="console-header">> SYSTEM_LOG_[ACTIVE]</div>
+                    <div id="consoleMessages" class="console-messages">
+                        <div class="console-message success">>> SYSTEM READY. SUAPBASE CONNECTED.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

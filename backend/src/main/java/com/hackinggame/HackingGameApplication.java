@@ -1,0 +1,23 @@
+package main.java.com.hackinggame;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+@SpringBootApplication
+@EnableScheduling
+public class HackingGameApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(HackingGameApplication.class, args);
+        System.out.println("""
+        \n
+        ██╗  ██╗ █████╗  ██████╗██╗  ██╗██╗███╗   ██╗ ██████╗ 
+        ██║  ██║██╔══██╗██╔════╝██║ ██╔╝██║████╗  ██║██╔════╝ 
+        ███████║███████║██║     █████╔╝ ██║██╔██╗ ██║██║  ███╗
+        ██╔══██║██╔══██║██║     ██╔═██╗ ██║██║╚██╗██║██║   ██║
+        ██║  ██║██║  ██║╚██████╗██║  ██╗██║██║ ╚████║╚██████╔╝
+        ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ 
+        🔐 Hacking Puzzle Game Started Successfully! 🎮
+        """);
+    }
+}
