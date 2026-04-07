@@ -1,0 +1,52 @@
+# Compiled files
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+.mvn/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Backend
+backend/target/
+backend/.mvn/
+
+# Frontend node_modules (if any)
+node_modules/
+package-lock.json
+
+# Environment variables
+.env
+.env.local
+application-local.properties
+
+# Database
+*.db
+*.sqlite
+
+# Backup files
+*.bak
+*.backup
+
+# Supabase
+supabase/.temp/
+supabase/.env
+
+# Secret keys
+*.pem
+*.key
+*.crt
