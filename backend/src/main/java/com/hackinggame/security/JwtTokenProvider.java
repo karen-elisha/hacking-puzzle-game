@@ -1,4 +1,4 @@
-package main.java.com.hackinggame.security;
+package com.hackinggame.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

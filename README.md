@@ -1,7 +1,7 @@
 # 🔐 Hacking Puzzle Game
 
 ![Version](https://img.shields.io/badge/version-1.0.0-green)
-![Java](https://img.shields.io/badge/Java-17-red)
+![Java](https://img.shields.io/badge/Java-21-red)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.1.5-brightgreen)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-blue)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
@@ -32,7 +32,7 @@ Hack other players, solve encryption puzzles, upgrade your vault, and become the
 
 ### Prerequisites
 
-- Java 17 or higher
+- Java 21 or higher
 - Maven 3.8+
 - Supabase account (free tier works)
 - Any modern web browser

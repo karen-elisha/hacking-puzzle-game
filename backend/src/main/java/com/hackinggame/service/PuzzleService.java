@@ -1,4 +1,4 @@
-package main.java.com.hackinggame.service;
+package com.hackinggame.service;
 
 import org.springframework.stereotype.Service;
 import java.util.*;

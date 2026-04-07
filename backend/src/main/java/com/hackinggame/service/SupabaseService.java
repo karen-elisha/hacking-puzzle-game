@@ -1,4 +1,4 @@
-package main.java.com.hackinggame.service;
+package com.hackinggame.service;
 
 import com.hackinggame.config.SupabaseConfig;
 import lombok.RequiredArgsConstructor;

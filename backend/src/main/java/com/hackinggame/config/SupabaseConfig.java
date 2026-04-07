@@ -1,4 +1,4 @@
-package main.java.com.hackinggame.config;
+package com.hackinggame.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

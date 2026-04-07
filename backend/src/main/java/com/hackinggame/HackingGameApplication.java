@@ -1,4 +1,4 @@
-package main.java.com.hackinggame;
+package com.hackinggame;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

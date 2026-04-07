@@ -1,4 +1,4 @@
-package main.java.com.hackinggame.repository;
+package com.hackinggame.repository;
 
 import com.hackinggame.model.Attack;
 import org.springframework.data.jpa.repository.JpaRepository;

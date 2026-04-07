@@ -1,4 +1,4 @@
-package main.java.com.hackinggame.controller;
+package com.hackinggame.controller;
 
 import com.hackinggame.model.User;
 import com.hackinggame.repository.UserRepository;

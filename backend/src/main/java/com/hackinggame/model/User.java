@@ -1,4 +1,4 @@
-package main.java.com.hackinggame.model;
+package com.hackinggame.model;
 
 import jakarta.persistence.*;
 import lombok.Data;

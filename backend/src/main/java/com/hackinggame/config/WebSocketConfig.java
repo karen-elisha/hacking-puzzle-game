@@ -1,4 +1,4 @@
-package main.java.com.hackinggame.config;
+package com.hackinggame.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
