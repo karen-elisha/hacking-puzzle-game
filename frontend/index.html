@@ -1,645 +1,987 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>⚡ NEOHACK | CYBER PUZZLE TERMINAL ⚡</title>
-    <!-- Google Fonts & Font Awesome for Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- React & ReactDOM CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
-    <!-- Babel for JSX -->
-    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-        }
-
-        body {
-            font-family: 'Share Tech Mono', monospace;
-            background: radial-gradient(circle at 20% 30%, #0a0f1e, #03050b);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Matrix rain background effect */
-        .matrix-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.2;
-            background: repeating-linear-gradient(0deg, #0f0 0px, #0f0 2px, transparent 2px, transparent 8px);
-            animation: scanlines 8s linear infinite;
-        }
-
-        @keyframes scanlines {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(10px); }
-        }
-
-        .app-container {
-            position: relative;
-            z-index: 2;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Glitch text effect */
-        .glitch-text {
-            font-size: 2.2rem;
-            font-weight: bold;
-            font-family: 'Orbitron', monospace;
-            text-transform: uppercase;
-            color: #0f0;
-            text-shadow: 0.05em 0 0 rgba(255,0,0,0.5), -0.05em -0.025em 0 rgba(0,255,0,0.3);
-            animation: glitch 0.3s infinite;
-            letter-spacing: 4px;
-        }
-
-        @keyframes glitch {
-            0% { text-shadow: 0.05em 0 0 #ff00c1, -0.05em -0.025em 0 #00fff9; }
-            25% { text-shadow: -0.05em 0 0 #ff00c1, 0.05em 0.025em 0 #00fff9; }
-            50% { text-shadow: 0.025em 0.05em 0 #ff00c1, -0.025em -0.05em 0 #00fff9; }
-            100% { text-shadow: -0.025em 0 0 #ff00c1, 0.025em -0.025em 0 #00fff9; }
-        }
-
-        /* Terminal card styling */
-        .terminal-card {
-            background: rgba(0, 10, 20, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid #0f0;
-            border-radius: 24px;
-            box-shadow: 0 0 25px rgba(0, 255, 0, 0.2), inset 0 0 10px rgba(0,255,0,0.1);
-            padding: 30px;
-            transition: all 0.2s ease;
-        }
-
-        .cyber-button {
-            background: linear-gradient(95deg, #0b2f1a, #021a0b);
-            border: 1.5px solid #0f0;
-            color: #0f0;
-            font-family: 'Share Tech Mono', monospace;
-            font-weight: bold;
-            padding: 12px 24px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: 0 0 8px #0f0;
-            width: 100%;
-            margin-top: 12px;
-        }
-
-        .cyber-button:hover {
-            background: #0f0;
-            color: #000;
-            box-shadow: 0 0 20px #0f0;
-            transform: scale(0.98);
-        }
-
-        input {
-            background: #010a14;
-            border: 1px solid #0f0;
-            padding: 12px 15px;
-            color: #0f0;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 1rem;
-            width: 100%;
-            outline: none;
-            transition: 0.2s;
-        }
-
-        input:focus {
-            border-color: #ff00c1;
-            box-shadow: 0 0 10px #ff00c1;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            color: #0f0;
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
-
-        .hacker-dashboard {
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 24px;
-        }
-
-        .sidebar-card {
-            background: rgba(0, 20, 15, 0.7);
-            border-radius: 20px;
-            padding: 20px;
-            border-left: 4px solid #0f0;
-        }
-
-        .stat-line {
-            color: #8eff8e;
-            font-size: 0.9rem;
-            padding: 6px 0;
-            border-bottom: 1px dashed #2a6b2a;
-        }
-
-        .action-btn {
-            background: #0a1f1a;
-            border: 1px solid #0f0;
-            color: #0f0;
-            padding: 10px;
-            margin: 8px 0;
-            width: 100%;
-            font-family: monospace;
-            cursor: pointer;
-            transition: 0.1s linear;
-            font-weight: bold;
-        }
-
-        .action-btn:hover {
-            background: #0f0;
-            color: black;
-            box-shadow: 0 0 10px #0f0;
-        }
-
-        .leaderboard-list {
-            margin-top: 15px;
-            max-height: 250px;
-            overflow-y: auto;
-        }
-
-        .leaderboard-entry {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            color: #aaffaa;
-            font-size: 0.8rem;
-            border-bottom: 1px dotted #2b6b2b;
-        }
-
-        .puzzle-terminal {
-            background: #021007;
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid #0f0;
-            margin-bottom: 20px;
-        }
-
-        .puzzle-question {
-            background: #000c0c;
-            padding: 20px;
-            margin: 15px 0;
-            font-size: 1.2rem;
-            border-left: 6px solid #0f0;
-            color: #bfffb0;
-            min-height: 120px;
-        }
-
-        .console-log {
-            background: #010c0c;
-            border-radius: 16px;
-            padding: 15px;
-            height: 200px;
-            overflow-y: auto;
-            border: 1px solid #2a7a2a;
-        }
-
-        .console-message {
-            font-family: monospace;
-            font-size: 0.8rem;
-            padding: 4px 0;
-            border-bottom: 0.5px solid #1c441c;
-        }
-
-        .success { color: #0f0; text-shadow: 0 0 2px #0f0; }
-        .error { color: #ff3366; }
-        .info { color: #2ad4ff; }
-
-        .reward-badge {
-            background: #0f0f1a;
-            padding: 5px 12px;
-            border-radius: 20px;
-            color: gold;
-        }
-
-        @media (max-width: 800px) {
-            .hacker-dashboard { grid-template-columns: 1fr; }
-            .glitch-text { font-size: 1.2rem; }
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-            background: #021a10;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #0f0;
-            border-radius: 8px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>⚡ NEOHACK ULTIMATE | CYBER PUZZLE TERMINAL ⚡</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+<style>
+:root{
+  --green:#00ff41;--cyan:#00fff9;--pink:#ff00c1;--orange:#ff8c00;--gold:#ffd700;
+  --red:#ff3366;--blue:#0080ff;--purple:#9d00ff;--dark:#010a03;--card:#00120a;
+  --border:rgba(0,255,65,0.4);--glow:0 0 18px rgba(0,255,65,0.5);
+}
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;}
+body{font-family:'Share Tech Mono',monospace;background:#000;min-height:100vh;overflow-x:hidden;cursor:crosshair;}
+#canvas-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+.app{position:relative;z-index:2;max-width:1600px;margin:0 auto;padding:16px;}
+/* GLITCH */
+.glitch{font-family:'Orbitron',monospace;color:var(--green);text-transform:uppercase;position:relative;animation:glitch-anim 2s infinite;}
+@keyframes glitch-anim{
+  0%,100%{text-shadow:0.05em 0 0 var(--pink),-0.05em -0.025em 0 var(--cyan);}
+  25%{text-shadow:-0.05em 0 0 var(--pink),0.05em 0.025em 0 var(--cyan);}
+  50%{text-shadow:0.025em 0.05em 0 var(--pink),-0.025em -0.05em 0 var(--cyan);}
+  75%{text-shadow:-0.025em 0 0 var(--pink),0.025em -0.025em 0 var(--cyan);}
+}
+/* PANELS */
+.panel{background:rgba(0,10,5,0.92);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--glow),inset 0 0 20px rgba(0,255,65,0.03);backdrop-filter:blur(8px);}
+.panel-glow-cyan{border-color:rgba(0,255,249,0.5);box-shadow:0 0 20px rgba(0,255,249,0.3);}
+.panel-glow-pink{border-color:rgba(255,0,193,0.5);box-shadow:0 0 20px rgba(255,0,193,0.3);}
+.panel-glow-gold{border-color:rgba(255,215,0,0.5);box-shadow:0 0 20px rgba(255,215,0,0.3);}
+/* BUTTONS */
+.btn{font-family:'Share Tech Mono',monospace;text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:all 0.15s;border-radius:4px;font-weight:bold;}
+.btn-green{background:#001a09;border:1.5px solid var(--green);color:var(--green);padding:10px 20px;}
+.btn-green:hover{background:var(--green);color:#000;box-shadow:0 0 25px var(--green);}
+.btn-cyan{background:#00101a;border:1.5px solid var(--cyan);color:var(--cyan);padding:10px 20px;}
+.btn-cyan:hover{background:var(--cyan);color:#000;box-shadow:0 0 25px var(--cyan);}
+.btn-pink{background:#1a0010;border:1.5px solid var(--pink);color:var(--pink);padding:10px 20px;}
+.btn-pink:hover{background:var(--pink);color:#000;box-shadow:0 0 25px var(--pink);}
+.btn-gold{background:#1a1200;border:1.5px solid var(--gold);color:var(--gold);padding:10px 20px;}
+.btn-gold:hover{background:var(--gold);color:#000;box-shadow:0 0 25px var(--gold);}
+.btn-red{background:#1a000a;border:1.5px solid var(--red);color:var(--red);padding:10px 20px;}
+.btn-red:hover{background:var(--red);color:#fff;box-shadow:0 0 25px var(--red);}
+.btn-full{width:100%;margin-top:8px;display:block;text-align:center;}
+/* INPUTS */
+input,select{background:#000f07;border:1px solid var(--border);color:var(--green);font-family:'Share Tech Mono',monospace;font-size:1rem;padding:10px 14px;width:100%;outline:none;border-radius:4px;transition:border-color 0.2s;}
+input:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,255,249,0.4);}
+input::placeholder{color:rgba(0,255,65,0.3);}
+label{color:var(--green);font-size:0.85rem;display:block;margin-bottom:6px;letter-spacing:1px;}
+.field{margin-bottom:14px;}
+/* DASHBOARD LAYOUT */
+.dashboard{display:grid;grid-template-columns:280px 1fr 260px;gap:16px;}
+@media(max-width:1200px){.dashboard{grid-template-columns:240px 1fr;}}
+@media(max-width:768px){.dashboard{grid-template-columns:1fr;}}
+/* SIDEBAR */
+.avatar-wrap{text-align:center;padding:12px 0;font-size:3.5rem;line-height:1;}
+.stat{display:flex;justify-content:space-between;align-items:center;padding:6px 4px;border-bottom:1px dashed rgba(0,255,65,0.2);font-size:0.82rem;}
+.stat-label{color:rgba(0,255,65,0.6);}
+.stat-val{color:var(--green);font-weight:bold;}
+.xp-bar{background:#001a09;border:1px solid var(--border);border-radius:100px;height:10px;margin:8px 0;}
+.xp-fill{background:linear-gradient(90deg,var(--green),var(--cyan));border-radius:100px;height:100%;transition:width 0.6s ease;box-shadow:0 0 8px var(--green);}
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap;}
+.tab{flex:1;min-width:80px;padding:8px 4px;text-align:center;font-size:0.75rem;letter-spacing:1px;cursor:pointer;border:1px solid rgba(0,255,65,0.2);color:rgba(0,255,65,0.5);transition:all 0.15s;border-radius:4px;background:rgba(0,10,5,0.5);}
+.tab.active{border-color:var(--green);color:var(--green);background:rgba(0,255,65,0.1);box-shadow:0 0 10px rgba(0,255,65,0.3);}
+.tab:hover{color:var(--green);border-color:var(--border);}
+/* PUZZLE AREA */
+.puzzle-box{background:#000c06;border:2px solid var(--green);border-radius:8px;padding:20px;min-height:130px;margin:12px 0;color:#bfffb0;font-size:1.05rem;line-height:1.7;position:relative;}
+.puzzle-box .tag{position:absolute;top:-12px;left:16px;background:#000;border:1px solid var(--green);color:var(--green);font-size:0.7rem;padding:2px 10px;letter-spacing:2px;}
+/* CONSOLE */
+.console{background:#000a04;border:1px solid rgba(0,255,65,0.3);border-radius:8px;padding:12px;height:170px;overflow-y:auto;font-size:0.8rem;}
+.console::-webkit-scrollbar{width:4px;background:transparent;}
+.console::-webkit-scrollbar-thumb{background:var(--green);border-radius:4px;}
+.cline{padding:3px 0;border-bottom:1px solid rgba(0,255,65,0.08);}
+.c-success{color:var(--green);}
+.c-error{color:var(--red);}
+.c-info{color:var(--cyan);}
+.c-warn{color:var(--orange);}
+.c-gold{color:var(--gold);}
+/* DIFFICULTY BADGES */
+.badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:0.72rem;letter-spacing:1px;font-weight:bold;}
+.badge-easy{background:rgba(0,255,65,0.15);border:1px solid var(--green);color:var(--green);}
+.badge-medium{background:rgba(255,140,0,0.15);border:1px solid var(--orange);color:var(--orange);}
+.badge-hard{background:rgba(255,51,102,0.15);border:1px solid var(--red);color:var(--red);}
+/* LEADERBOARD */
+.lb-entry{display:flex;align-items:center;gap:8px;padding:7px 6px;border-bottom:1px dotted rgba(0,255,65,0.15);font-size:0.8rem;}
+.lb-rank{min-width:24px;font-size:0.9rem;}
+.lb-name{flex:1;color:var(--cyan);}
+.lb-score{color:var(--gold);font-size:0.78rem;}
+/* STORE */
+.store-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:12px;}
+.store-item{background:#000f07;border:1px solid rgba(0,255,65,0.3);border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:all 0.2s;}
+.store-item:hover{border-color:var(--gold);box-shadow:0 0 15px rgba(255,215,0,0.3);transform:scale(1.05);}
+.store-item.owned{border-color:var(--green);background:rgba(0,255,65,0.08);}
+.store-item.equipped{border-color:var(--gold);background:rgba(255,215,0,0.1);box-shadow:0 0 12px rgba(255,215,0,0.4);}
+.store-emoji{font-size:2.2rem;line-height:1;}
+.store-name{font-size:0.65rem;color:rgba(0,255,65,0.7);margin:4px 0;letter-spacing:1px;}
+.store-price{font-size:0.7rem;color:var(--gold);}
+/* RIDDLE SECTION */
+.riddle-key{background:#0a0500;border:1px solid var(--orange);border-radius:8px;padding:14px;margin:8px 0;}
+.riddle-key .q{color:#ffcc66;font-size:0.9rem;line-height:1.5;}
+.riddle-key .hint-btn{color:var(--orange);font-size:0.75rem;cursor:pointer;text-decoration:underline;margin-top:6px;display:inline-block;}
+.key-display{background:#001209;border:2px dashed var(--gold);border-radius:6px;padding:8px 14px;color:var(--gold);font-size:1.1rem;letter-spacing:4px;text-align:center;margin-top:8px;font-family:'VT323',monospace;}
+/* LEVEL SELECT */
+.level-card{background:#000f07;border:1px solid rgba(0,255,65,0.3);border-radius:10px;padding:18px;cursor:pointer;transition:all 0.2s;text-align:center;}
+.level-card:hover,.level-card.active{border-color:var(--cyan);box-shadow:0 0 20px rgba(0,255,249,0.3);transform:translateY(-3px);}
+.level-card.locked{opacity:0.4;cursor:not-allowed;filter:grayscale(0.8);}
+.level-icon{font-size:2.5rem;margin-bottom:8px;}
+/* MANUAL */
+.manual-section{margin-bottom:18px;}
+.manual-section h3{color:var(--cyan);font-family:'Orbitron',monospace;font-size:0.9rem;letter-spacing:2px;margin-bottom:8px;border-bottom:1px solid rgba(0,255,249,0.3);padding-bottom:6px;}
+.manual-section p,.manual-section li{color:rgba(0,255,65,0.75);font-size:0.82rem;line-height:1.8;margin-bottom:4px;}
+.manual-section ul{padding-left:16px;}
+/* NOTIFICATIONS */
+.notif{position:fixed;top:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px;}
+.notif-item{background:#001209;border-left:4px solid var(--green);color:var(--green);padding:10px 16px;border-radius:4px;font-size:0.85rem;animation:slide-in 0.3s ease;box-shadow:var(--glow);max-width:300px;}
+.notif-item.error{border-color:var(--red);color:var(--red);}
+.notif-item.gold{border-color:var(--gold);color:var(--gold);}
+.notif-item.exit{animation:slide-out 0.3s ease forwards;}
+@keyframes slide-in{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes slide-out{from{transform:translateX(0);opacity:1;}to{transform:translateX(100%);opacity:0;}}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal{background:#000d06;border:2px solid var(--green);border-radius:14px;padding:28px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 0 40px rgba(0,255,65,0.4);}
+.modal h2{font-family:'Orbitron',monospace;color:var(--green);margin-bottom:16px;}
+/* LOGIN */
+.login-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+.login-card{width:100%;max-width:480px;}
+.login-title{font-size:2.8rem;letter-spacing:6px;text-align:center;margin-bottom:8px;}
+.login-sub{text-align:center;color:rgba(0,255,65,0.4);font-size:0.8rem;letter-spacing:3px;margin-bottom:28px;}
+/* PROGRESS BAR ANIMATED */
+@keyframes pulse-green{0%,100%{box-shadow:0 0 6px var(--green);}50%{box-shadow:0 0 20px var(--green);}}
+.pulse{animation:pulse-green 2s infinite;}
+/* TIMER */
+.timer-ring{position:relative;display:inline-flex;align-items:center;justify-content:center;}
+.timer-text{position:absolute;font-size:1rem;color:var(--orange);font-family:'Orbitron',monospace;}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;background:#000;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+/* DRAG EFFECT */
+.drag-zone{border:2px dashed rgba(0,255,65,0.3);border-radius:8px;padding:20px;text-align:center;color:rgba(0,255,65,0.4);font-size:0.8rem;}
+/* ENCODE DECODE PANEL */
+.encode-box{background:#000a04;border:1px solid rgba(0,255,249,0.3);border-radius:8px;padding:14px;}
+textarea{background:#000f07;border:1px solid var(--border);color:var(--green);font-family:'Share Tech Mono',monospace;font-size:0.9rem;padding:10px;width:100%;outline:none;border-radius:4px;resize:vertical;}
+textarea:focus{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,255,249,0.3);}
+/* FX */
+@keyframes scanline{0%{transform:translateY(-100%);}100%{transform:translateY(100vh);}}
+.scan-line{position:fixed;top:0;left:0;width:100%;height:2px;background:rgba(0,255,65,0.08);z-index:1;animation:scanline 6s linear infinite;pointer-events:none;}
+</style>
 </head>
 <body>
-<div class="matrix-bg"></div>
-<div id="root" class="app-container"></div>
+<canvas id="canvas-bg"></canvas>
+<div class="scan-line"></div>
+<div id="root" class="app"></div>
 
 <script type="text/babel">
-    // -------------------- PUZZLE GENERATOR (HACKING THEMES) --------------------
-    const puzzleBank = [
-        { text: "Decode hex to ASCII: 68 61 63 6b 65 72", answer: "hacker", hint: "hex -> text" },
-        { text: "What is 2^10 in decimal?", answer: "1024", hint: "binary prefix" },
-        { text: "Binary: 01001001 01001110 01001010 01000101 01000011 01010100", answer: "inject", hint: "binary to ascii" },
-        { text: "Crack the Caesar cipher: 'FDWH' (shift 3)", answer: "cate", hint: "shift back by 3" },
-        { text: "What port is commonly used for HTTP?", answer: "80", hint: "web default" },
-        { text: "Reverse string: 'esreveR'", answer: "reverse", hint: "flip it" },
-        { text: "MD5 of 'admin' is 21232f297a57a5a743894a0e4a801fc3? first 5 chars?", answer: "21232", hint: "hash prefix" },
-        { text: "What does SQL stand for?", answer: "structured query language", hint: "database" },
-        { text: "ROT13: 'unpxre'", answer: "hacker", hint: "rot13" },
-        { text: "How many bits in a byte?", answer: "8", hint: "basic" }
-    ];
+const{useState,useEffect,useRef,useCallback}=React;
 
-    function generateRandomPuzzle() {
-        const idx = Math.floor(Math.random() * puzzleBank.length);
-        const base = puzzleBank[idx];
-        const xpReward = Math.floor(Math.random() * 120) + 80; // 80-200 XP
-        return {
-            id: Date.now() + idx,
-            question: base.text,
-            answer: base.answer.toLowerCase().trim(),
-            reward: xpReward,
-            hint: base.hint
-        };
+/* ===== MATRIX RAIN ===== */
+function initMatrix(){
+  const c=document.getElementById('canvas-bg');
+  const ctx=c.getContext('2d');
+  c.width=window.innerWidth;c.height=window.innerHeight;
+  const cols=Math.floor(c.width/16);
+  const drops=Array(cols).fill(1);
+  const chars='01アイウエオカキクケコサシスセソABCDEFGHIJKLMNOPQRSTUVWXYZ<>{}[]()#@!';
+  function draw(){
+    ctx.fillStyle='rgba(0,0,0,0.05)';ctx.fillRect(0,0,c.width,c.height);
+    ctx.fillStyle='#00ff41';ctx.font='14px monospace';
+    drops.forEach((y,i)=>{
+      const char=chars[Math.floor(Math.random()*chars.length)];
+      ctx.fillStyle=i%5===0?'#00fff9':'#00ff41';
+      ctx.globalAlpha=0.6;
+      ctx.fillText(char,i*16,y*16);
+      if(y*16>c.height&&Math.random()>0.975)drops[i]=0;
+      drops[i]++;
+    });
+  }
+  return setInterval(draw,50);
+}
+
+/* ===== SOUND ENGINE ===== */
+const SFX={
+  ctx:null,
+  init(){if(!this.ctx)this.ctx=new(window.AudioContext||window.webkitAudioContext)();},
+  play(type){
+    try{
+      this.init();
+      const o=this.ctx.createOscillator(),g=this.ctx.createGain();
+      o.connect(g);g.connect(this.ctx.destination);
+      const t=this.ctx.currentTime;
+      if(type==='click'){o.frequency.setValueAtTime(880,t);o.frequency.exponentialRampToValueAtTime(440,t+0.1);g.gain.setValueAtTime(0.3,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.15);o.start(t);o.stop(t+0.15);}
+      else if(type==='success'){
+        o.type='square';
+        [523,659,784,1047].forEach((f,i)=>{o.frequency.setValueAtTime(f,t+i*0.1);});
+        g.gain.setValueAtTime(0.2,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.5);o.start(t);o.stop(t+0.5);
+      }else if(type==='error'){
+        o.type='sawtooth';o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(80,t+0.3);
+        g.gain.setValueAtTime(0.3,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.3);o.start(t);o.stop(t+0.3);
+      }else if(type==='levelup'){
+        o.type='square';
+        [262,330,392,523,659,784].forEach((f,i)=>{o.frequency.setValueAtTime(f,t+i*0.08);});
+        g.gain.setValueAtTime(0.25,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.6);o.start(t);o.stop(t+0.6);
+      }else if(type==='type'){o.frequency.setValueAtTime(1200+Math.random()*400,t);g.gain.setValueAtTime(0.05,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.05);o.start(t);o.stop(t+0.05);}
+      else if(type==='unlock'){
+        o.type='sine';[440,880,1320].forEach((f,i)=>{o.frequency.setValueAtTime(f,t+i*0.15);});
+        g.gain.setValueAtTime(0.2,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.5);o.start(t);o.stop(t+0.5);
+      }
+    }catch(e){}
+  }
+};
+
+/* ===== STORAGE ===== */
+const DB={
+  getUsers(){try{return JSON.parse(localStorage.getItem('nh_users'))||[];}catch{return[];}},
+  saveUsers(u){localStorage.setItem('nh_users',JSON.stringify(u));},
+  getSession(){return localStorage.getItem('nh_session');},
+  setSession(id){localStorage.setItem('nh_session',id);},
+  clearSession(){localStorage.removeItem('nh_session');},
+  getCurrentUser(){
+    const id=this.getSession();if(!id)return null;
+    return this.getUsers().find(u=>u.id===id)||null;
+  },
+  updateUser(u){
+    const users=this.getUsers();
+    const i=users.findIndex(x=>x.id===u.id);
+    if(i!==-1)users[i]=u; else users.push(u);
+    this.saveUsers(users);this.setSession(u.id);
+  },
+  getLeaderboard(){
+    return[...this.getUsers()].sort((a,b)=>b.totalXp-a.totalXp||b.hacks-a.hacks).slice(0,10);
+  },
+  init(){
+    if(!this.getUsers().length){
+      const defaults=[
+        {id:'u1',username:'GH05T',password:'ghost123',email:'ghost@cyber.net',level:5,xp:350,totalXp:1750,coins:4200,hacks:24,avatar:'👾',unlockedAvatars:['👾'],riddleKeys:[],completedPuzzles:[],streak:3,lastPlay:Date.now()},
+        {id:'u2',username:'ZER0DAY',password:'zero456',email:'zero@dark.web',level:8,xp:600,totalXp:3400,coins:9800,hacks:51,avatar:'🤖',unlockedAvatars:['👾','🤖','💀'],riddleKeys:[],completedPuzzles:[],streak:7,lastPlay:Date.now()},
+        {id:'u3',username:'N3ON_SH4DOW',password:'neon789',email:'neon@shadow.net',level:3,xp:100,totalXp:780,coins:2100,hacks:11,avatar:'🦾',unlockedAvatars:['👾','🦾'],riddleKeys:[],completedPuzzles:[],streak:1,lastPlay:Date.now()},
+      ];
+      this.saveUsers(defaults);
     }
+  }
+};
+DB.init();
 
-    // -------------------- MAIN REACT APP --------------------
-    const { useState, useEffect } = React;
+/* ===== PUZZLE BANK ===== */
+const PUZZLES={
+  easy:[
+    {id:'e1',type:'java',title:'Java Basics',q:'What is the output of: System.out.println(5 + 3 * 2);',a:'11',hint:'Operator precedence: * before +',xp:80,coins:40,category:'Java'},
+    {id:'e2',type:'logic',title:'Logic Gate',q:'If A=1, B=0, what is A AND B?',a:'0',hint:'AND returns 1 only if BOTH are 1',xp:70,coins:35,category:'Logic'},
+    {id:'e3',type:'hex',title:'Hex Decode',q:'Decode hex to ASCII: 68 61 63 6b',a:'hack',hint:'Use hex->ASCII table',xp:90,coins:45,category:'Encoding'},
+    {id:'e4',type:'caesar',title:'Caesar Cipher',q:"Decrypt Caesar cipher (shift 3): 'KDFNHU'",a:'hacker',hint:'Shift each letter back 3',xp:85,coins:42,category:'Cipher'},
+    {id:'e5',type:'binary',title:'Binary Convert',q:'Convert binary 01001000 to decimal',a:'72',hint:'Sum the powers of 2',xp:75,coins:38,category:'Binary'},
+    {id:'e6',type:'logic',title:'Networking',q:'What port does HTTP use by default?',a:'80',hint:'Standard web port',xp:65,coins:32,category:'Network'},
+    {id:'e7',type:'java',title:'Java String',q:'What does "HACK".length() return in Java?',a:'4',hint:'Count the characters',xp:70,coins:35,category:'Java'},
+    {id:'e8',type:'logic',title:'Boolean',q:'What is NOT(NOT(true)) in boolean logic?',a:'true',hint:'Double negation',xp:72,coins:36,category:'Logic'},
+    {id:'e9',type:'binary',title:'Binary to ASCII',q:'Binary 01001000 01101001 = what ASCII text?',a:'hi',hint:'8 bits per character',xp:85,coins:42,category:'Binary'},
+    {id:'e10',type:'logic',title:'Subnetting',q:'How many bits are in an IPv4 address?',a:'32',hint:'4 octets × 8 bits',xp:68,coins:34,category:'Network'},
+  ],
+  medium:[
+    {id:'m1',type:'java',title:'Java Recursion',q:'What is returned: int f(int n){if(n<=1)return n; return f(n-1)+f(n-2);} calling f(6)?',a:'8',hint:'Fibonacci sequence',xp:150,coins:75,category:'Java'},
+    {id:'m2',type:'encrypt',title:'ROT13 Decrypt',q:"ROT13 decode: 'unpxre nffnhyg'",a:'hacker assault',hint:'Each letter shifts 13 places',xp:130,coins:65,category:'Cipher'},
+    {id:'m3',type:'logic',title:'XOR Gate',q:'5 XOR 3 = ? (in decimal)',a:'6',hint:'XOR each bit: 101 XOR 011',xp:140,coins:70,category:'Logic'},
+    {id:'m4',type:'java',title:'Bitwise Java',q:'In Java: System.out.println(1 << 4); outputs?',a:'16',hint:'Left shift = multiply by 2^n',xp:145,coins:72,category:'Java'},
+    {id:'m5',type:'hex',title:'Hex Math',q:'0xFF + 0x01 = ? (decimal)',a:'256',hint:'FF hex = 255 decimal',xp:135,coins:67,category:'Encoding'},
+    {id:'m6',type:'encrypt',title:'Base64',q:'Base64 decode: aGFja2Vy',a:'hacker',hint:'Base64 decoding scheme',xp:155,coins:77,category:'Cipher'},
+    {id:'m7',type:'logic',title:'SQL Injection',q:"What character typically begins an SQL comment? (type the symbol)",a:'--',hint:'Used to comment out the rest of SQL',xp:120,coins:60,category:'Web'},
+    {id:'m8',type:'java',title:'Java Loop',q:'How many times does this loop run: for(int i=0;i<10;i+=3)?',a:'4',hint:'0,3,6,9 then 12>=10 stops',xp:140,coins:70,category:'Java'},
+    {id:'m9',type:'binary',title:'Two\'s Complement',q:'What is -1 in 8-bit two\'s complement binary?',a:'11111111',hint:'Invert bits of 1 and add 1',xp:160,coins:80,category:'Binary'},
+    {id:'m10',type:'logic',title:'Hash Prefix',q:'MD5 of "admin" starts with what 4 chars?',a:'2123',hint:'MD5("admin") = 21232f29...',xp:125,coins:62,category:'Cryptography'},
+  ],
+  hard:[
+    {id:'h1',type:'java',title:'Java Generics',q:'In Java, what runtime exception does Integer.parseInt("0xFF") throw?',a:'NumberFormatException',hint:'parseInt only handles decimal by default',xp:250,coins:125,category:'Java'},
+    {id:'h2',type:'encrypt',title:'Vigenère Cipher',q:"Decrypt Vigenère (key='KEY'): 'RIJVS'",a:'hacker',hint:'Subtract key letters cyclically',xp:280,coins:140,category:'Cipher'},
+    {id:'h3',type:'logic',title:'RSA Basics',q:'In RSA, if p=3, q=11, what is n (the modulus)?',a:'33',hint:'n = p × q',xp:260,coins:130,category:'Cryptography'},
+    {id:'h4',type:'java',title:'Java Threads',q:'What Java keyword ensures a method is accessed by one thread at a time?',a:'synchronized',hint:'Thread safety keyword',xp:240,coins:120,category:'Java'},
+    {id:'h5',type:'binary',title:'IEEE 754',q:'How many bits total in a double-precision IEEE 754 float?',a:'64',hint:'1 sign + 11 exponent + 52 mantissa',xp:270,coins:135,category:'Binary'},
+    {id:'h6',type:'logic',title:'Buffer Overflow',q:'What type of attack exploits writing data beyond allocated memory?',a:'buffer overflow',hint:'Smashing the stack',xp:230,coins:115,category:'Security'},
+    {id:'h7',type:'encrypt',title:'AES Key Size',q:'What is the key size (bits) of AES-256?',a:'256',hint:'It\'s in the name',xp:220,coins:110,category:'Cryptography'},
+    {id:'h8',type:'java',title:'Java GC',q:'What Java method suggests (but doesn\'t guarantee) garbage collection?',a:'System.gc()',hint:'System class, gc method',xp:255,coins:127,category:'Java'},
+    {id:'h9',type:'logic',title:'Subnet Mask',q:'How many usable hosts does a /29 subnet have?',a:'6',hint:'2^3 - 2 (subtract network and broadcast)',xp:265,coins:132,category:'Network'},
+    {id:'h10',type:'encrypt',title:'SHA-256 Length',q:'How many characters in a SHA-256 hex digest?',a:'64',hint:'256 bits / 4 bits per hex char',xp:245,coins:122,category:'Cryptography'},
+  ]
+};
 
-    // Mock Supabase-like localstorage for demo (full persistence & leaderboard)
-    // Structure: users: [{ id, username, password, email, level, xp, coins, vaultLevel, hacks }]
-    // but to keep simple yet fully functional with ranking
-    const STORAGE_USERS = "neoHack_users";
-    const STORAGE_SESSION = "neoHack_session";
+/* ===== RIDDLES (Keys unlock puzzle hints/clues) ===== */
+const RIDDLES=[
+  {id:'r1',q:"I have keys but no locks, I have space but no room, you can enter but can't go inside. What am I?",a:'keyboard',key:'K3Y_4LPHA',reward:'Reveals answer hint for any EASY puzzle',clue:'EASY_HINT_UNLOCK'},
+  {id:'r2',q:"The more you take, the more you leave behind. What am I?",a:'footsteps',key:'TR4CE_BETA',reward:'Unlocks Medium puzzle bonus XP (x1.5)',clue:'MEDIUM_XP_BOOST'},
+  {id:'r3',q:"I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?",a:'echo',key:'3CH0_GAMMA',reward:'Reveals one letter in Hard puzzle answers',clue:'HARD_LETTER_REVEAL'},
+  {id:'r4',q:"In a network I travel at speed of light, through routers and switches I route just right. I am not a packet, nor a byte, but the path through which they take their flight. What am I?",a:'protocol',key:'PR0T0_DELTA',reward:'Grants 500 bonus coins',clue:'COIN_BOOST_500'},
+  {id:'r5',q:"I am always in front of you but cannot be seen. I have no weight, no mass, no color. Even the wisest of men fear me. What am I?",a:'future',key:'FUT_EPSILON',reward:'Unlocks secret Hard level puzzle',clue:'SECRET_PUZZLE_ACCESS'},
+  {id:'r6',q:"I flip bits without touching, I change values in place. An operation so fundamental, I'm part of every cipher's face. XOR my sibling, AND my cousin, OR my friend. What am I?",a:'not',key:'N0T_ZETA',reward:'Decrypts a hidden vault message',clue:'VAULT_DECRYPT'},
+];
 
-    function initializeDB() {
-        if (!localStorage.getItem(STORAGE_USERS)) {
-            const defaultUsers = [
-                { id: "u1", username: "GH05T", password: "pass123", email: "ghost@cyber.net", level: 3, xp: 420, totalXp: 420, coins: 1250, vaultLevel: 2, hacks: 12 },
-                { id: "u2", username: "ZER0DAY", password: "zero123", email: "zero@darkweb", level: 5, xp: 890, totalXp: 890, coins: 3400, vaultLevel: 3, hacks: 28 }
-            ];
-            localStorage.setItem(STORAGE_USERS, JSON.stringify(defaultUsers));
-        }
-    }
-    initializeDB();
+/* ===== STORE ITEMS ===== */
+const STORE_ITEMS=[
+  {id:'av1',emoji:'👾',name:'GHOST',price:0,type:'avatar',desc:'Default avatar'},
+  {id:'av2',emoji:'🤖',name:'ANDROID',price:500,type:'avatar',desc:'Cyber robot'},
+  {id:'av3',emoji:'💀',name:'SKULL',price:800,type:'avatar',desc:'Elite skull'},
+  {id:'av4',emoji:'🦾',name:'CYBORG',price:1200,type:'avatar',desc:'Part machine'},
+  {id:'av5',emoji:'🧙',name:'WIZARD',price:1500,type:'avatar',desc:'Code wizard'},
+  {id:'av6',emoji:'👽',name:'ALIEN',price:2000,type:'avatar',desc:'Extraterrestrial'},
+  {id:'av7',emoji:'🐉',name:'DRAGON',price:3000,type:'avatar',desc:'Legendary'},
+  {id:'av8',emoji:'🦅',name:'EAGLE',price:1800,type:'avatar',desc:'High flyer'},
+  {id:'av9',emoji:'🔮',name:'ORACLE',price:4000,type:'avatar',desc:'Sees all'},
+  {id:'av10',emoji:'⚡',name:'VOLT',price:2500,type:'avatar',desc:'Electric'},
+  {id:'av11',emoji:'🌀',name:'VORTEX',price:3500,type:'avatar',desc:'Swirling chaos'},
+  {id:'av12',emoji:'🎭',name:'PHANTOM',price:5000,type:'avatar',desc:'Elite unlock'},
+];
 
-    function getUsers() {
-        return JSON.parse(localStorage.getItem(STORAGE_USERS));
-    }
-    function saveUsers(users) {
-        localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
-    }
-    function getCurrentUser() {
-        const session = localStorage.getItem(STORAGE_SESSION);
-        if (!session) return null;
-        const userId = session;
-        const users = getUsers();
-        return users.find(u => u.id === userId) || null;
-    }
-    function setSession(userId) {
-        localStorage.setItem(STORAGE_SESSION, userId);
-    }
-    function clearSession() {
-        localStorage.removeItem(STORAGE_SESSION);
-    }
+/* ===== HELPERS ===== */
+function rot13(s){return s.replace(/[a-z]/gi,c=>{const base=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-base+13)%26+base);});}
+function hexToAscii(h){return h.replace(/\s/g,'').match(/.{1,2}/g)?.map(x=>String.fromCharCode(parseInt(x,16))).join('')||'';}
+function caesarDecrypt(s,n){return s.replace(/[a-z]/gi,c=>{const base=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-base-n+26)%26+base);});}
+function atob64(s){try{return atob(s);}catch{return 'Invalid Base64';}}
+function xorCalc(a,b){return a^b;}
 
-    // Helper: update user in storage
-    function updateUser(updatedUser) {
-        const users = getUsers();
-        const index = users.findIndex(u => u.id === updatedUser.id);
-        if (index !== -1) users[index] = updatedUser;
-        saveUsers(users);
-        setSession(updatedUser.id);
-    }
+/* ===== NOTIFICATION SYSTEM ===== */
+let _notifSetter=null;
+function notify(msg,type='info',dur=3000){
+  if(_notifSetter)_notifSetter(p=>[...p,{id:Date.now()+Math.random(),msg,type,dur}]);
+}
 
-    // Leaderboard sorted by level & xp
-    function getLeaderboard() {
-        const users = getUsers();
-        return [...users].sort((a,b) => {
-            if (a.level !== b.level) return b.level - a.level;
-            return b.totalXp - a.totalXp;
-        }).slice(0, 8);
-    }
+/* ===== MAIN APP ===== */
+function App(){
+  const[page,setPage]=useState('login');
+  const[user,setUser]=useState(null);
+  const[notifs,setNotifs]=useState([]);
+  _notifSetter=setNotifs;
 
-    // ---------- Components ----------
-    const LoginPage = ({ onLoginSuccess }) => {
-        const [username, setUsername] = useState("");
-        const [password, setPassword] = useState("");
-        const [error, setError] = useState("");
+  useEffect(()=>{const t=initMatrix();return()=>clearInterval(t);},[]);
+  useEffect(()=>{
+    const u=DB.getCurrentUser();
+    if(u){setUser(u);setPage('game');}
+  },[]);
 
-        const handleLogin = () => {
-            const users = getUsers();
-            const user = users.find(u => u.username === username && u.password === password);
-            if (user) {
-                setSession(user.id);
-                onLoginSuccess(user);
-            } else {
-                setError("ACCESS DENIED: Invalid credentials");
-            }
-        };
+  const handleLogin=(u)=>{setUser(u);setPage('game');};
+  const handleLogout=()=>{DB.clearSession();setUser(null);setPage('login');};
+  const handleRegister=(u)=>{setUser(u);setPage('game');};
 
-        const demoQuick = () => {
-            const demoUser = getUsers().find(u => u.username === "GH05T");
-            if(demoUser) { setSession(demoUser.id); onLoginSuccess(demoUser); }
-            else setError("Demo profile missing");
-        };
+  return(
+    <>
+      <NotifContainer notifs={notifs} setNotifs={setNotifs}/>
+      {page==='login'&&<LoginPage onLogin={handleLogin} onRegister={()=>setPage('register')}/>}
+      {page==='register'&&<RegisterPage onSuccess={handleRegister} onBack={()=>setPage('login')}/>}
+      {page==='game'&&user&&<GameDashboard user={user} setUser={setUser} onLogout={handleLogout}/>}
+    </>
+  );
+}
 
-        return (
-            <div className="terminal-card" style={{maxWidth: "500px", margin: "60px auto"}}>
-                <div className="glitch-text" style={{textAlign:"center", marginBottom:"30px"}}>
-                    <i className="fas fa-skull"></i> NEOHACK v3.0
+/* ===== NOTIFICATIONS ===== */
+function NotifContainer({notifs,setNotifs}){
+  useEffect(()=>{
+    if(!notifs.length)return;
+    const last=notifs[notifs.length-1];
+    const t=setTimeout(()=>setNotifs(p=>p.filter(n=>n.id!==last.id)),last.dur||3000);
+    return()=>clearTimeout(t);
+  },[notifs]);
+  return(
+    <div className="notif">
+      {notifs.map(n=>(
+        <div key={n.id} className={`notif-item ${n.type==='error'?'error':n.type==='gold'?'gold':''}`}>
+          {n.type==='error'?'⚠️':n.type==='gold'?'🏆':'✔️'} {n.msg}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ===== LOGIN ===== */
+function LoginPage({onLogin,onRegister}){
+  const[u,setU]=useState('');const[p,setP]=useState('');const[err,setErr]=useState('');
+  const login=()=>{
+    SFX.play('click');
+    const user=DB.getUsers().find(x=>x.username===u&&x.password===p);
+    if(user){onLogin(user);}
+    else{SFX.play('error');setErr('ACCESS DENIED — Invalid credentials');}
+  };
+  const demo=()=>{SFX.play('click');const u=DB.getUsers().find(x=>x.username==='GH05T');if(u){DB.setSession(u.id);onLogin(u);}};
+  return(
+    <div className="login-wrap">
+      <div className="panel login-card">
+        <div className="glitch login-title">NEOHACK</div>
+        <div className="login-sub">◈ ULTIMATE CYBER PUZZLE TERMINAL v4.0 ◈</div>
+        <div className="field"><label>▸ HACKER ALIAS</label><input value={u} onChange={e=>setU(e.target.value)} placeholder="enter username" onKeyPress={e=>e.key==='Enter'&&login()}/></div>
+        <div className="field"><label>▸ ACCESS CODE</label><input type="password" value={p} onChange={e=>setP(e.target.value)} placeholder="••••••••" onKeyPress={e=>e.key==='Enter'&&login()}/></div>
+        {err&&<div className="cline c-error" style={{marginBottom:12}}>{'>'} {err}</div>}
+        <button className="btn btn-green btn-full" onClick={login}>⫸ BREACH SYSTEM</button>
+        <button className="btn btn-cyan btn-full" onClick={demo} style={{marginTop:8}}>◈ QUICK ACCESS [GH05T PROFILE]</button>
+        <div style={{textAlign:'center',marginTop:16,color:'rgba(0,255,65,0.5)',fontSize:'0.8rem',cursor:'pointer'}} onClick={onRegister}>
+          ⟳ REGISTER NEW IDENTITY ›
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===== REGISTER ===== */
+function RegisterPage({onSuccess,onBack}){
+  const[f,setF]=useState({username:'',email:'',password:''});
+  const[err,setErr]=useState('');
+  const reg=()=>{
+    SFX.play('click');
+    if(!f.username||!f.email||!f.password){setErr('All fields required');return;}
+    const users=DB.getUsers();
+    if(users.find(u=>u.username===f.username)){setErr('Username already taken');return;}
+    const nu={id:'u'+Date.now(),username:f.username,email:f.email,password:f.password,
+      level:1,xp:0,totalXp:0,coins:500,hacks:0,avatar:'👾',
+      unlockedAvatars:['👾'],riddleKeys:[],completedPuzzles:[],streak:0,lastPlay:Date.now()};
+    DB.updateUser(nu);onSuccess(nu);
+  };
+  return(
+    <div className="login-wrap">
+      <div className="panel login-card">
+        <div className="glitch" style={{fontSize:'1.6rem',textAlign:'center',marginBottom:20}}>⚡ CREATE IDENTITY ⚡</div>
+        {['username','email','password'].map(k=>(
+          <div className="field" key={k}>
+            <label>▸ {k.toUpperCase()}</label>
+            <input type={k==='password'?'password':'text'} value={f[k]} onChange={e=>setF({...f,[k]:e.target.value})} onKeyPress={e=>e.key==='Enter'&&reg()}/>
+          </div>
+        ))}
+        {err&&<div className="cline c-error" style={{marginBottom:12}}>{err}</div>}
+        <button className="btn btn-green btn-full" onClick={reg}>⫸ DEPLOY IDENTITY</button>
+        <div style={{textAlign:'center',marginTop:16,color:'rgba(0,255,65,0.5)',fontSize:'0.8rem',cursor:'pointer'}} onClick={onBack}>‹ BACK TO LOGIN</div>
+      </div>
+    </div>
+  );
+}
+
+/* ===== MAIN DASHBOARD ===== */
+function GameDashboard({user,setUser,onLogout}){
+  const[cu,setCu]=useState(user);
+  const[tab,setTab]=useState('puzzles');
+  const[logs,setLogs]=useState(['>> SYSTEM ONLINE | ENCRYPTION ACTIVE | WELCOME AGENT '+user.username]);
+
+  const log=(msg,type='info')=>setLogs(p=>[...p.slice(-80),{msg,type}]);
+
+  const updateCu=(u)=>{DB.updateUser(u);setCu(u);setUser(u);};
+
+  const xpNext=cu.level*400;
+  const xpPct=Math.min(100,Math.floor((cu.xp/xpNext)*100));
+
+  return(
+    <div>
+      {/* HEADER */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16,flexWrap:'wrap',gap:8}}>
+        <div className="glitch" style={{fontSize:'1.8rem',letterSpacing:4}}>⚡ NEOHACK ULTIMATE</div>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          <span style={{fontSize:'1.8rem'}}>{cu.avatar}</span>
+          <div>
+            <div style={{color:'var(--green)',fontWeight:'bold',fontSize:'0.9rem'}}>{cu.username}</div>
+            <div style={{color:'var(--cyan)',fontSize:'0.75rem'}}>LVL {cu.level} | {cu.coins}💰</div>
+          </div>
+          <button className="btn btn-red" onClick={onLogout} style={{padding:'6px 12px',fontSize:'0.75rem'}}>LOGOUT</button>
+        </div>
+      </div>
+
+      <div className="dashboard">
+        {/* LEFT SIDEBAR */}
+        <div>
+          <div className="panel" style={{marginBottom:14}}>
+            <div className="avatar-wrap">{cu.avatar}</div>
+            <div style={{textAlign:'center',color:'var(--green)',fontFamily:"'Orbitron',monospace",fontSize:'0.85rem',marginBottom:8}}>{cu.username}</div>
+            <div className="xp-bar"><div className="xp-fill" style={{width:xpPct+'%'}}/></div>
+            <div style={{textAlign:'center',color:'rgba(0,255,65,0.5)',fontSize:'0.7rem',marginBottom:10}}>XP {cu.xp}/{xpNext} ({xpPct}%)</div>
+            {[['LEVEL',cu.level],['TOTAL XP',cu.totalXp],['COINS','💰'+cu.coins],['HACKS',cu.hacks],['STREAK',cu.streak+'🔥'],['KEYS',cu.riddleKeys.length]].map(([l,v])=>(
+              <div key={l} className="stat"><span className="stat-label">{l}</span><span className="stat-val">{v}</span></div>
+            ))}
+            <button className="btn btn-red btn-full" style={{marginTop:14,fontSize:'0.75rem'}} onClick={onLogout}>⏻ DISCONNECT</button>
+          </div>
+
+          {/* MINI LEADERBOARD */}
+          <div className="panel">
+            <div style={{color:'var(--gold)',fontFamily:"'Orbitron',monospace",fontSize:'0.8rem',letterSpacing:2,marginBottom:10}}>🏆 TOP HACKERS</div>
+            {DB.getLeaderboard().map((u,i)=>(
+              <div key={u.id} className="lb-entry">
+                <span className="lb-rank">{i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`}</span>
+                <span className="lb-name" style={{color:u.id===cu.id?'var(--gold)':'var(--cyan)'}}>{u.username}</span>
+                <span className="lb-score">Lv{u.level} | {u.totalXp}xp</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CENTER MAIN */}
+        <div>
+          <div className="tabs">
+            {[['puzzles','⚡ PUZZLES'],['riddles','🔑 RIDDLES'],['encode','🔐 CRYPTO LAB'],['store','🛒 STORE'],['manual','📖 MANUAL']].map(([k,l])=>(
+              <div key={k} className={`tab${tab===k?' active':''}`} onClick={()=>{SFX.play('click');setTab(k);}}>{l}</div>
+            ))}
+          </div>
+          {tab==='puzzles'&&<PuzzlesTab cu={cu} updateCu={updateCu} log={log}/>}
+          {tab==='riddles'&&<RiddlesTab cu={cu} updateCu={updateCu} log={log}/>}
+          {tab==='encode'&&<CryptoLabTab/>}
+          {tab==='store'&&<StoreTab cu={cu} updateCu={updateCu}/>}
+          {tab==='manual'&&<ManualTab/>}
+
+          {/* CONSOLE */}
+          <div style={{marginTop:14}}>
+            <div style={{color:'var(--green)',fontSize:'0.75rem',letterSpacing:2,marginBottom:6}}>▸ HACK_CONSOLE</div>
+            <div className="console">
+              {logs.map((l,i)=>(
+                <div key={i} className={`cline ${typeof l==='string'?'c-info':l.type==='success'?'c-success':l.type==='error'?'c-error':l.type==='gold'?'c-gold':'c-info'}`}>
+                  {'>'} {typeof l==='string'?l:l.msg}
                 </div>
-                <div className="input-group">
-                    <label><i className="fas fa-user-secret"></i> LOGIN ID</label>
-                    <input type="text" placeholder="hacker alias" value={username} onChange={e=>setUsername(e.target.value)} onKeyPress={e=>e.key==='Enter'&&handleLogin()}/>
-                </div>
-                <div className="input-group">
-                    <label><i className="fas fa-key"></i> ACCESS CODE</label>
-                    <input type="password" placeholder="•••••••" value={password} onChange={e=>setPassword(e.target.value)} onKeyPress={e=>e.key==='Enter'&&handleLogin()}/>
-                </div>
-                {error && <div className="console-message error" style={{marginBottom:12}}>{'>'}  {error}</div>}
-                <button className="cyber-button" onClick={handleLogin}><i className="fas fa-terminal"></i> BREACH SYSTEM</button>
-                <button className="cyber-button" onClick={demoQuick} style={{background:"#1f3a2f", marginTop:10}}><i className="fas fa-ghost"></i> GUEST HACK (GH05T)</button>
-                <div style={{textAlign:"center", marginTop:20, color:"#0f0"}}>
-                    <span onClick={() => onLoginSuccess(null, true)} style={{cursor:"pointer", textDecoration:"underline"}}>⟳ REGISTER NEW HACKER?</span>
-                </div>
+              ))}
             </div>
-        );
-    };
+          </div>
+        </div>
 
-    const RegisterPage = ({ onRegisterSuccess }) => {
-        const [username, setUsername] = useState("");
-        const [email, setEmail] = useState("");
-        const [password, setPassword] = useState("");
-        const [error, setError] = useState("");
+        {/* RIGHT PANEL */}
+        <div style={{display:'flex',flexDirection:'column',gap:14}}>
+          <LeaderboardFull/>
+          <KeyVault cu={cu}/>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-        const handleRegister = () => {
-            if (!username || !password || !email) {
-                setError("All fields required");
-                return;
-            }
-            const users = getUsers();
-            if (users.find(u => u.username === username)) {
-                setError("Username already exists");
-                return;
-            }
-            const newId = "u" + Date.now();
-            const newUser = {
-                id: newId,
-                username: username,
-                password: password,
-                email: email,
-                level: 1,
-                xp: 0,
-                totalXp: 0,
-                coins: 500,
-                vaultLevel: 1,
-                hacks: 0
-            };
-            users.push(newUser);
-            saveUsers(users);
-            setSession(newId);
-            onRegisterSuccess(newUser);
-        };
+/* ===== PUZZLES TAB ===== */
+function PuzzlesTab({cu,updateCu,log}){
+  const[diff,setDiff]=useState('easy');
+  const[puzzle,setPuzzle]=useState(null);
+  const[ans,setAns]=useState('');
+  const[timer,setTimer]=useState(0);
+  const[timerActive,setTimerActive]=useState(false);
+  const[showHint,setShowHint]=useState(false);
+  const[hintUsed,setHintUsed]=useState(false);
+  const timerRef=useRef(null);
 
-        return (
-            <div className="terminal-card" style={{maxWidth:"500px", margin:"60px auto"}}>
-                <div className="glitch-text" style={{fontSize:"1.6rem", textAlign:"center"}}>⚡ REGISTER PROFILE ⚡</div>
-                <div className="input-group"><label>USERNAME</label><input value={username} onChange={e=>setUsername(e.target.value)}/></div>
-                <div className="input-group"><label>EMAIL</label><input value={email} onChange={e=>setEmail(e.target.value)}/></div>
-                <div className="input-group"><label>PASSWORD</label><input type="password" value={password} onChange={e=>setPassword(e.target.value)}/></div>
-                {error && <div className="error console-message">{error}</div>}
-                <button className="cyber-button" onClick={handleRegister}><i className="fas fa-id-card"></i> DEPLOY IDENTITY</button>
-                <div style={{textAlign:"center", marginTop:15}}><span onClick={()=>onRegisterSuccess(null, false)} style={{cursor:"pointer", color:"#0f0"}}>‹ BACK TO LOGIN ›</span></div>
+  const LIMITS={easy:120,medium:90,hard:60};
+
+  const startTimer=(lim)=>{
+    clearInterval(timerRef.current);
+    setTimer(lim);setTimerActive(true);
+    timerRef.current=setInterval(()=>{
+      setTimer(t=>{
+        if(t<=1){clearInterval(timerRef.current);setTimerActive(false);SFX.play('error');
+          notify('⏱️ TIME EXPIRED!','error');log('⏱️ TIME EXPIRED! Puzzle failed.','error');
+          setPuzzle(null);return 0;}
+        if(t<=10)SFX.play('type');
+        return t-1;
+      });
+    },1000);
+  };
+
+  const getRandomPuzzle=()=>{
+    SFX.play('click');
+    clearInterval(timerRef.current);
+    const pool=PUZZLES[diff];
+    const p=pool[Math.floor(Math.random()*pool.length)];
+    setPuzzle(p);setAns('');setShowHint(false);setHintUsed(false);
+    startTimer(LIMITS[diff]);
+    log(`🎯 NEW PUZZLE [${diff.toUpperCase()}]: ${p.title} | Reward: ${p.xp}XP ${p.coins}💰`,'info');
+  };
+
+  const submit=()=>{
+    if(!puzzle)return;
+    SFX.play('click');
+    const correct=ans.trim().toLowerCase()===puzzle.a.toLowerCase();
+    if(correct){
+      clearInterval(timerRef.current);setTimerActive(false);
+      const bonus=hintUsed?0.7:1;
+      const xpGain=Math.round(puzzle.xp*bonus);
+      const coinGain=Math.round(puzzle.coins*bonus);
+      const timebonus=Math.round((timer/LIMITS[diff])*50);
+      const totalXp=xpGain+timebonus;
+      let newXp=cu.xp+totalXp,newTotalXp=cu.totalXp+totalXp;
+      let newLevel=cu.level,newCoins=cu.coins+coinGain;
+      const xpNext=cu.level*400;
+      let levelUp=false;
+      while(newXp>=newLevel*400){newXp-=newLevel*400;newLevel++;levelUp=true;}
+      const done=[...(cu.completedPuzzles||[]),puzzle.id];
+      const updated={...cu,xp:newXp,totalXp:newTotalXp,level:newLevel,coins:newCoins,hacks:cu.hacks+1,completedPuzzles:done,streak:(cu.streak||0)+1};
+      updateCu(updated);
+      SFX.play(levelUp?'levelup':'success');
+      notify(`✅ HACK SUCCESS! +${totalXp}XP +${coinGain}💰${timebonus>0?' (⚡time bonus: +'+timebonus+'xp)':''}${hintUsed?' (-30% hint penalty)':''}`,levelUp?'gold':'info');
+      log(`✅ CORRECT! +${totalXp}XP +${coinGain}💰${levelUp?' | 🎉 LEVEL UP → '+newLevel:''}${timebonus>0?' | ⚡+'+timebonus+'xp time bonus':''}${hintUsed?' | ⚠️ hint penalty applied':''}`,levelUp?'gold':'success');
+      if(levelUp)notify('🎉 LEVEL UP! You are now Level '+newLevel,'gold',5000);
+      setPuzzle(null);setAns('');
+    }else{
+      SFX.play('error');
+      notify('❌ WRONG ANSWER — Try again!','error');
+      log(`❌ WRONG: "${ans}" — HINT: ${puzzle.hint}`,'error');
+    }
+  };
+
+  useEffect(()=>()=>clearInterval(timerRef.current),[]);
+
+  const pct=puzzle?Math.round((timer/LIMITS[diff])*100):100;
+  const timerColor=timer>30?'var(--green)':timer>10?'var(--orange)':'var(--red)';
+
+  return(
+    <div>
+      {/* DIFFICULTY SELECT */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:14}}>
+        {['easy','medium','hard'].map(d=>{
+          const locked=d==='medium'&&cu.level<3||d==='hard'&&cu.level<6;
+          return(
+            <div key={d} className={`level-card${diff===d?' active':''}${locked?' locked':''}`}
+              onClick={()=>{if(!locked){SFX.play('click');setDiff(d);setPuzzle(null);clearInterval(timerRef.current);}}}
+            >
+              <div className="level-icon">{d==='easy'?'🟢':d==='medium'?'🟡':'🔴'}</div>
+              <div style={{fontFamily:"'Orbitron',monospace",fontSize:'0.8rem',color:d==='easy'?'var(--green)':d==='medium'?'var(--orange)':'var(--red)',letterSpacing:2}}>{d.toUpperCase()}</div>
+              <div style={{fontSize:'0.7rem',color:'rgba(0,255,65,0.5)',marginTop:4}}>
+                {d==='easy'?'Req: Level 1':d==='medium'?'Req: Level 3':'Req: Level 6'}
+              </div>
+              {locked&&<div style={{fontSize:'0.7rem',color:'var(--red)',marginTop:4}}>🔒 LOCKED</div>}
+              <div className={`badge badge-${d}`} style={{marginTop:6}}>{d==='easy'?'80-90 XP':d==='medium'?'120-160 XP':'220-280 XP'}</div>
             </div>
-        );
-    };
+          );
+        })}
+      </div>
 
-    const GameDashboard = ({ user, onLogout }) => {
-        const [currentUser, setCurrentUser] = useState(user);
-        const [currentPuzzle, setCurrentPuzzle] = useState(null);
-        const [answerInput, setAnswerInput] = useState("");
-        const [consoleMsgs, setConsoleMsgs] = useState([">> SYSTEM ONLINE. ENCRYPTION ACTIVE."]);
-        const [leaderboard, setLeaderboard] = useState(getLeaderboard());
-
-        const addConsole = (msg, type="info") => {
-            setConsoleMsgs(prev => [...prev, { text: msg, type }]);
-        };
-
-        const refreshLeaderboard = () => setLeaderboard(getLeaderboard());
-
-        const updatePlayerStats = (updated) => {
-            updateUser(updated);
-            setCurrentUser(updated);
-            refreshLeaderboard();
-        };
-
-        const getNewPuzzle = () => {
-            const puzzle = generateRandomPuzzle();
-            setCurrentPuzzle(puzzle);
-            setAnswerInput("");
-            addConsole(`🕸️ NEW HACK TARGET: ${puzzle.question.substring(0, 60)}... [REWARD: ${puzzle.reward} XP]`, "info");
-        };
-
-        const submitAnswer = () => {
-            if (!currentPuzzle) {
-                addConsole("⚠️ NO ACTIVE PUZZLE. Generate one first.", "error");
-                return;
-            }
-            const userAnswer = answerInput.trim().toLowerCase();
-            if (userAnswer === currentPuzzle.answer) {
-                // success hack
-                let gainedXp = currentPuzzle.reward;
-                let gainedCoins = Math.floor(gainedXp * 0.8) + 15;
-                let newXp = currentUser.xp + gainedXp;
-                let newTotalXp = currentUser.totalXp + gainedXp;
-                let newLevel = currentUser.level;
-                let xpForNext = newLevel * 400;
-                let levelUp = false;
-                while (newXp >= xpForNext) {
-                    newXp -= xpForNext;
-                    newLevel++;
-                    xpForNext = newLevel * 400;
-                    levelUp = true;
-                }
-                let newCoins = currentUser.coins + gainedCoins;
-                let newHacks = currentUser.hacks + 1;
-                const updatedUser = {
-                    ...currentUser,
-                    xp: newXp,
-                    totalXp: newTotalXp,
-                    level: newLevel,
-                    coins: newCoins,
-                    hacks: newHacks
-                };
-                updatePlayerStats(updatedUser);
-                addConsole(`✔️ HACK SUCCESSFUL! +${gainedXp} XP, +${gainedCoins} 💰`, "success");
-                if (levelUp) addConsole(`🎉 LEVEL UP! You are now level ${newLevel} 🎉`, "success");
-                setCurrentPuzzle(null);
-                setAnswerInput("");
-                refreshLeaderboard();
-            } else {
-                addConsole(`❌ ACCESS FAILURE: "${answerInput}" is incorrect. HINT: ${currentPuzzle.hint}`, "error");
-            }
-        };
-
-        const upgradeVault = () => {
-            let cost = currentUser.vaultLevel * 750;
-            if (currentUser.coins >= cost) {
-                const newVault = currentUser.vaultLevel + 1;
-                const newCoins = currentUser.coins - cost;
-                const updated = { ...currentUser, vaultLevel: newVault, coins: newCoins };
-                updatePlayerStats(updated);
-                addConsole(`🔐 VAULT UPGRADED TO LEVEL ${newVault}. Security enhanced. -${cost} coins`, "success");
-            } else {
-                addConsole(`⚠️ INSUFFICIENT COINS! Need ${cost} coins. Hack more puzzles.`, "error");
-            }
-        };
-
-        useEffect(() => {
-            refreshLeaderboard();
-        }, []);
-
-        const nextLevelXp = currentUser.level * 400;
-
-        return (
-            <div className="hacker-dashboard">
-                <div className="sidebar-card">
-                    <div style={{textAlign:"center", fontSize:"3rem"}}>👾</div>
-                    <div className="stat-line"><i className="fas fa-tag"></i> AGENT: <strong>{currentUser.username}</strong></div>
-                    <div className="stat-line"><i className="fas fa-chart-line"></i> LEVEL: {currentUser.level}</div>
-                    <div className="stat-line"><i className="fas fa-star"></i> XP: {currentUser.xp} / {nextLevelXp}</div>
-                    <div className="stat-line"><i className="fas fa-coins"></i> COINS: 💰 {currentUser.coins}</div>
-                    <div className="stat-line"><i className="fas fa-shield-alt"></i> VAULT LVL: {currentUser.vaultLevel}</div>
-                    <div className="stat-line"><i className="fas fa-biohazard"></i> HACKS EXEC: {currentUser.hacks}</div>
-                    <hr style={{borderColor:"#0f0", margin:"12px 0"}}/>
-                    <button className="action-btn" onClick={getNewPuzzle}><i className="fas fa-microchip"></i> 🎲 GENERATE PUZZLE</button>
-                    <button className="action-btn" onClick={upgradeVault}><i className="fas fa-lock"></i> 🔒 UPGRADE VAULT</button>
-                    <button className="action-btn" onClick={()=>{clearSession(); onLogout();}}><i className="fas fa-power-off"></i> 🚪 DISCONNECT</button>
-                    
-                    <div className="section-title" style={{marginTop:"20px", color:"#0f0"}}>🏆 TOP HACKERS</div>
-                    <div className="leaderboard-list">
-                        {leaderboard.map((usr, idx) => (
-                            <div key={usr.id} className="leaderboard-entry">
-                                <span>{idx+1}. {usr.username}</span>
-                                <span>Lv.{usr.level} | 💀{usr.hacks}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div>
-                    <div className="puzzle-terminal">
-                        <div style={{display:"flex", justifyContent:"space-between", alignItems:"center"}}>
-                            <span className="reward-badge"><i className="fas fa-bug"></i> PUZZLE SLOT</span>
-                            {currentPuzzle && <span style={{color:"#ffcc44"}}>🏆 REWARD: {currentPuzzle.reward} XP</span>}
-                        </div>
-                        <div className="puzzle-question">
-                            {currentPuzzle ? (
-                                <><i className="fas fa-question-circle"></i> {currentPuzzle.question}</>
-                            ) : (
-                                <span style={{opacity:0.7}}><i className="fas fa-dice-d6"></i> [STANDING BY] Click 'GENERATE PUZZLE' to initiate breach.</span>
-                            )}
-                        </div>
-                        <div className="puzzle-input-area" style={{display:"flex", gap:"12px", flexWrap:"wrap"}}>
-                            <input 
-                                type="text" 
-                                placeholder=">_ ENTER DECRYPTION KEY..." 
-                                value={answerInput}
-                                onChange={e=>setAnswerInput(e.target.value)}
-                                disabled={!currentPuzzle}
-                                onKeyPress={e=> e.key==='Enter' && currentPuzzle && submitAnswer()}
-                                style={{flex:2}}
-                            />
-                            <button className="cyber-button" onClick={submitAnswer} disabled={!currentPuzzle} style={{width:"auto", marginTop:0}}>
-                                🚀 EXECUTE
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="console-log">
-                        <div className="console-header" style={{color:"#0f0", marginBottom:"8px", borderBottom:"1px solid #0f0"}}>
-                            <i className="fas fa-terminal"></i> LIVE_HACK_LOG
-                        </div>
-                        <div className="console-messages">
-                            {consoleMsgs.map((msg, idx) => (
-                                <div key={idx} className={`console-message ${msg.type === "success" ? "success" : msg.type === "error" ? "error" : "info"}`}>
-                                    {'>'}  {typeof msg === 'string' ? msg : msg.text}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+      {/* PUZZLE CARD */}
+      <div className={`panel${diff==='hard'?' panel-glow-pink':diff==='medium'?' panel-glow-gold':''}`}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:8}}>
+          <div style={{display:'flex',gap:8,alignItems:'center'}}>
+            <span className={`badge badge-${diff}`}>{diff.toUpperCase()}</span>
+            {puzzle&&<span style={{color:'rgba(0,255,65,0.6)',fontSize:'0.75rem'}}>{puzzle.category}</span>}
+          </div>
+          {puzzle&&timerActive&&(
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <div style={{background:'#000f07',border:'1px solid rgba(0,255,65,0.3)',borderRadius:4,width:100,height:8}}>
+                <div style={{background:timerColor,height:'100%',width:pct+'%',borderRadius:4,transition:'width 1s linear'}}/>
+              </div>
+              <span style={{color:timerColor,fontFamily:"'Orbitron',monospace",fontSize:'0.9rem',minWidth:32}}>{timer}s</span>
             </div>
-        );
-    };
+          )}
+        </div>
 
-    // Main App Router
-    const App = () => {
-        const [page, setPage] = useState("login"); // login, register, game
-        const [user, setUser] = useState(null);
-
-        useEffect(() => {
-            const sessionUser = getCurrentUser();
-            if (sessionUser) {
-                setUser(sessionUser);
-                setPage("game");
-            }
-        }, []);
-
-        const handleLogin = (loggedUser, showRegisterFlag) => {
-            if (showRegisterFlag) {
-                setPage("register");
-            } else if (loggedUser) {
-                setUser(loggedUser);
-                setPage("game");
-            }
-        };
-
-        const handleRegisterSuccess = (newUser, goBack) => {
-            if (goBack === false) {
-                setPage("login");
-            } else if (newUser) {
-                setUser(newUser);
-                setPage("game");
-            }
-        };
-
-        const handleLogout = () => {
-            setUser(null);
-            setPage("login");
-        };
-
-        return (
+        <div className="puzzle-box">
+          <span className="tag">◈ PUZZLE TERMINAL</span>
+          {puzzle?(
             <div>
-                {page === "login" && <LoginPage onLoginSuccess={handleLogin} />}
-                {page === "register" && <RegisterPage onRegisterSuccess={handleRegisterSuccess} />}
-                {page === "game" && user && <GameDashboard user={user} onLogout={handleLogout} />}
+              <div style={{color:'var(--cyan)',fontSize:'0.8rem',marginBottom:8}}>TYPE: {puzzle.type.toUpperCase()} | REWARD: <span style={{color:'var(--gold)'}}>{puzzle.xp}XP {puzzle.coins}💰</span></div>
+              <div style={{fontSize:'1rem',lineHeight:1.8}}>{puzzle.q}</div>
+              {showHint&&<div style={{marginTop:12,padding:'8px 12px',background:'rgba(255,140,0,0.1)',border:'1px solid var(--orange)',borderRadius:6,color:'var(--orange)',fontSize:'0.85rem'}}>💡 HINT: {puzzle.hint}</div>}
             </div>
-        );
-    };
+          ):(
+            <span style={{opacity:0.4,fontSize:'0.9rem'}}>▸ [STANDING BY] Select difficulty and generate a puzzle...</span>
+          )}
+        </div>
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <input value={ans} onChange={e=>setAns(e.target.value)} placeholder=">_ ENTER DECRYPTION KEY..." disabled={!puzzle} onKeyPress={e=>e.key==='Enter'&&puzzle&&submit()} style={{flex:2}}/>
+          <button className="btn btn-green" onClick={submit} disabled={!puzzle} style={{whiteSpace:'nowrap'}}>⫸ EXECUTE</button>
+        </div>
+        <div style={{display:'flex',gap:8,marginTop:8,flexWrap:'wrap'}}>
+          <button className="btn btn-cyan" style={{flex:1,fontSize:'0.8rem'}} onClick={getRandomPuzzle}>🎲 GENERATE PUZZLE</button>
+          {puzzle&&!showHint&&(
+            <button className="btn btn-gold" style={{flex:1,fontSize:'0.8rem'}} onClick={()=>{SFX.play('click');setShowHint(true);setHintUsed(true);notify('💡 Hint revealed (-30% XP penalty)','error');}}>💡 REVEAL HINT (-30%)</button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===== RIDDLES TAB ===== */
+function RiddlesTab({cu,updateCu,log}){
+  const[answers,setAnswers]=useState({});
+  const[revealed,setRevealed]=useState({});
+  const[showHints,setShowHints]=useState({});
+
+  const submitRiddle=(r)=>{
+    SFX.play('click');
+    const a=answers[r.id]||'';
+    if(a.trim().toLowerCase()===r.a.toLowerCase()){
+      if(cu.riddleKeys.includes(r.key)){notify('Key already collected!','error');return;}
+      const updated={...cu,riddleKeys:[...cu.riddleKeys,r.key],coins:cu.coins+(r.clue==='COIN_BOOST_500'?500:0)};
+      updateCu(updated);
+      SFX.play('unlock');
+      setRevealed({...revealed,[r.id]:true});
+      notify('🔑 KEY UNLOCKED: '+r.key,'gold',5000);
+      log('🔑 RIDDLE SOLVED! Key: '+r.key+' | '+r.reward,'gold');
+      if(r.clue==='COIN_BOOST_500')notify('💰 +500 COINS AWARDED!','gold');
+    }else{
+      SFX.play('error');
+      notify('❌ Wrong answer!','error');
+      log('❌ Wrong riddle answer: "'+a+'"','error');
+    }
+  };
+
+  return(
+    <div>
+      <div style={{color:'var(--orange)',fontSize:'0.8rem',letterSpacing:1,marginBottom:12,padding:'8px 12px',background:'rgba(255,140,0,0.08)',border:'1px solid rgba(255,140,0,0.3)',borderRadius:6}}>
+        🔑 Solve riddles to unlock SECRET KEYS. Keys reveal hints, boost XP, and unlock special puzzles!
+      </div>
+      <div style={{display:'flex',flexDirection:'column',gap:10}}>
+        {RIDDLES.map(r=>{
+          const solved=cu.riddleKeys.includes(r.key)||revealed[r.id];
+          return(
+            <div key={r.id} className={`riddle-key${solved?' panel-glow-gold':''}`} style={solved?{background:'rgba(255,215,0,0.05)',border:'1px solid var(--gold)',borderRadius:8,padding:14}:{}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                <span style={{color:'var(--orange)',fontSize:'0.75rem',letterSpacing:1}}>RIDDLE #{r.id.slice(1)}</span>
+                <span style={{color:'rgba(0,255,65,0.5)',fontSize:'0.72rem'}}>{r.reward}</span>
+              </div>
+              <div className="q">{r.q}</div>
+              {solved?(
+                <div className="key-display">🔑 {r.key}</div>
+              ):(
+                <div style={{marginTop:10}}>
+                  <div style={{display:'flex',gap:8}}>
+                    <input value={answers[r.id]||''} onChange={e=>setAnswers({...answers,[r.id]:e.target.value})} placeholder=">_ your answer..." onKeyPress={e=>e.key==='Enter'&&submitRiddle(r)}/>
+                    <button className="btn btn-gold" style={{whiteSpace:'nowrap',padding:'8px 14px'}} onClick={()=>submitRiddle(r)}>UNLOCK</button>
+                  </div>
+                  <span className="hint-btn" onClick={()=>{SFX.play('click');setShowHints({...showHints,[r.id]:true});}}>
+                    {showHints[r.id]?`💡 Think about: ${r.a.length}-letter word`:'💡 Need a hint?'}
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ===== CRYPTO LAB ===== */
+function CryptoLabTab(){
+  const[input,setInput]=useState('');
+  const[output,setOutput]=useState('');
+  const[mode,setMode]=useState('rot13');
+  const[shift,setShift]=useState(3);
+
+  const ops={
+    rot13:{label:'ROT13',fn:s=>rot13(s)},
+    hex_enc:{label:'Text → HEX',fn:s=>Array.from(s).map(c=>c.charCodeAt(0).toString(16).padStart(2,'0')).join(' ')},
+    hex_dec:{label:'HEX → Text',fn:s=>hexToAscii(s)},
+    b64_enc:{label:'Text → Base64',fn:s=>{try{return btoa(s);}catch{return 'Error';}}},
+    b64_dec:{label:'Base64 → Text',fn:s=>atob64(s)},
+    bin_enc:{label:'Text → Binary',fn:s=>Array.from(s).map(c=>c.charCodeAt(0).toString(2).padStart(8,'0')).join(' ')},
+    bin_dec:{label:'Binary → Text',fn:s=>s.split(' ').map(b=>{try{return String.fromCharCode(parseInt(b,2));}catch{return '?';}}).join('')},
+    caesar_enc:{label:'Caesar Encrypt',fn:s=>s.replace(/[a-z]/gi,c=>{const base=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-base+shift+26)%26+base);})},
+    caesar_dec:{label:'Caesar Decrypt',fn:s=>caesarDecrypt(s,shift)},
+    reverse:{label:'Reverse',fn:s=>s.split('').reverse().join('')},
+    md5_demo:{label:'MD5 Demo',fn:s=>`MD5("${s.slice(0,20)}") = [requires server-side] — Use CyberChef online for full MD5`},
+  };
+
+  const run=()=>{SFX.play('click');setOutput(ops[mode].fn(input));};
+
+  return(
+    <div>
+      <div className="panel panel-glow-cyan">
+        <div style={{color:'var(--cyan)',fontFamily:"'Orbitron',monospace",fontSize:'0.85rem',letterSpacing:2,marginBottom:14}}>◈ CRYPTO LABORATORY</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
+          <div>
+            <label>▸ OPERATION</label>
+            <select value={mode} onChange={e=>{setMode(e.target.value);}}>
+              {Object.entries(ops).map(([k,v])=><option key={k} value={k}>{v.label}</option>)}
+            </select>
+          </div>
+          {(mode==='caesar_enc'||mode==='caesar_dec')&&(
+            <div>
+              <label>▸ SHIFT VALUE</label>
+              <input type="number" min="1" max="25" value={shift} onChange={e=>setShift(Number(e.target.value))}/>
+            </div>
+          )}
+        </div>
+        <div className="field">
+          <label>▸ INPUT</label>
+          <textarea rows="3" value={input} onChange={e=>setInput(e.target.value)} placeholder="Enter text to encrypt/decrypt..."/>
+        </div>
+        <button className="btn btn-cyan btn-full" onClick={run}>⫸ EXECUTE {ops[mode].label.toUpperCase()}</button>
+        {output&&(
+          <div style={{marginTop:14}}>
+            <label>▸ OUTPUT</label>
+            <div style={{background:'#001209',border:'2px dashed var(--green)',borderRadius:6,padding:12,color:'var(--green)',wordBreak:'break-all',fontFamily:"'Share Tech Mono',monospace",fontSize:'0.9rem',lineHeight:1.6}}>
+              {output}
+            </div>
+            <div style={{display:'flex',gap:8,marginTop:8}}>
+              <button className="btn btn-green" style={{fontSize:'0.75rem',padding:'6px 12px'}} onClick={()=>{setInput(output);setOutput('');}}>↻ USE AS INPUT</button>
+              <button className="btn btn-pink" style={{fontSize:'0.75rem',padding:'6px 12px'}} onClick={()=>{setOutput('');setInput('');}}>✕ CLEAR</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* REFERENCE TABLE */}
+      <div className="panel" style={{marginTop:14}}>
+        <div style={{color:'var(--cyan)',fontSize:'0.8rem',letterSpacing:2,marginBottom:10}}>▸ ASCII / HEX QUICK REFERENCE</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(120px,1fr))',gap:4,fontSize:'0.72rem'}}>
+          {[['A','41','65'],['B','42','66'],['C','43','67'],['D','44','68'],['E','45','69'],['F','46','70'],['G','47','71'],['H','48','72'],['space','20','32'],['0','30','48'],['1','31','49'],].map(([c,h,d])=>(
+            <div key={c} style={{background:'#000a04',border:'1px solid rgba(0,255,65,0.15)',borderRadius:4,padding:'4px 8px',display:'flex',gap:6}}>
+              <span style={{color:'var(--gold)'}}>{c}</span>
+              <span style={{color:'var(--cyan)'}}>0x{h}</span>
+              <span style={{color:'rgba(0,255,65,0.5)'}}>d{d}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===== STORE TAB ===== */
+function StoreTab({cu,updateCu}){
+  const buy=(item)=>{
+    SFX.play('click');
+    if(cu.unlockedAvatars.includes(item.id)){
+      updateCu({...cu,avatar:item.emoji});
+      SFX.play('success');
+      notify('✅ Avatar equipped: '+item.emoji+' '+item.name,'info');
+    }else if(cu.coins>=item.price){
+      const updated={...cu,coins:cu.coins-item.price,unlockedAvatars:[...cu.unlockedAvatars,item.id],avatar:item.emoji};
+      updateCu(updated);
+      SFX.play('unlock');
+      notify('🛒 Purchased & equipped: '+item.emoji+' '+item.name,'gold');
+    }else{
+      SFX.play('error');
+      notify('❌ Insufficient coins! Need '+item.price+'💰','error');
+    }
+  };
+
+  return(
+    <div>
+      <div className="panel panel-glow-gold">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+          <div style={{color:'var(--gold)',fontFamily:"'Orbitron',monospace",fontSize:'0.9rem',letterSpacing:2}}>🛒 IDENTITY STORE</div>
+          <div style={{color:'var(--gold)',fontSize:'0.9rem'}}>Balance: {cu.coins}💰</div>
+        </div>
+        <div className="store-grid">
+          {STORE_ITEMS.map(item=>{
+            const owned=item.price===0||cu.unlockedAvatars.includes(item.id);
+            const equipped=cu.avatar===item.emoji;
+            return(
+              <div key={item.id} className={`store-item${equipped?' equipped':owned?' owned':''}`} onClick={()=>buy(item)}>
+                <div className="store-emoji">{item.emoji}</div>
+                <div className="store-name">{item.name}</div>
+                <div className="store-price">
+                  {equipped?'✅ ON':(owned?'EQUIP':item.price===0?'FREE':item.price+'💰')}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{marginTop:14,padding:'10px 14px',background:'rgba(255,215,0,0.05)',border:'1px dashed rgba(255,215,0,0.3)',borderRadius:6,fontSize:'0.78rem',color:'rgba(255,215,0,0.6)',lineHeight:1.8}}>
+          💡 Earn coins by solving puzzles. Harder puzzles = more coins!<br/>
+          🔑 Riddle keys can unlock bonus coins via the Riddles tab.<br/>
+          🎭 PHANTOM avatar requires 5000💰 — only elite hackers can afford it.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===== LEADERBOARD (FULL) ===== */
+function LeaderboardFull(){
+  const lb=DB.getLeaderboard();
+  return(
+    <div className="panel">
+      <div style={{color:'var(--gold)',fontFamily:"'Orbitron',monospace",fontSize:'0.78rem',letterSpacing:2,marginBottom:10}}>🏆 LEADERBOARD</div>
+      {lb.map((u,i)=>(
+        <div key={u.id} className="lb-entry">
+          <span style={{minWidth:20,fontSize:'0.9rem'}}>{i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1+'.'}</span>
+          <span style={{flex:1,color:'var(--cyan)',fontSize:'0.8rem'}}>{u.avatar||'👾'} {u.username}</span>
+          <div style={{textAlign:'right'}}>
+            <div style={{color:'var(--gold)',fontSize:'0.72rem'}}>Lv{u.level}</div>
+            <div style={{color:'rgba(0,255,65,0.5)',fontSize:'0.68rem'}}>{u.hacks} hacks</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ===== KEY VAULT ===== */
+function KeyVault({cu}){
+  return(
+    <div className="panel">
+      <div style={{color:'var(--orange)',fontFamily:"'Orbitron',monospace",fontSize:'0.78rem',letterSpacing:2,marginBottom:10}}>🔑 KEY VAULT</div>
+      {cu.riddleKeys.length===0?(
+        <div style={{color:'rgba(0,255,65,0.3)',fontSize:'0.78rem',textAlign:'center',padding:'12px 0'}}>No keys collected yet.<br/>Solve riddles to earn keys!</div>
+      ):(
+        cu.riddleKeys.map((k,i)=>(
+          <div key={i} style={{background:'rgba(255,140,0,0.08)',border:'1px solid rgba(255,140,0,0.3)',borderRadius:6,padding:'6px 10px',marginBottom:6,fontSize:'0.75rem',color:'var(--orange)',letterSpacing:2}}>
+            🔑 {k}
+          </div>
+        ))
+      )}
+      <div style={{marginTop:10,fontSize:'0.7rem',color:'rgba(0,255,65,0.3)',lineHeight:1.6}}>
+        Keys unlock:<br/>
+        • Puzzle hints<br/>
+        • XP multipliers<br/>
+        • Bonus coins<br/>
+        • Secret puzzles
+      </div>
+    </div>
+  );
+}
+
+/* ===== MANUAL TAB ===== */
+function ManualTab(){
+  return(
+    <div className="panel">
+      <div className="glitch" style={{fontSize:'1rem',marginBottom:16,letterSpacing:3}}>📖 NEOHACK GAME MANUAL</div>
+
+      <div className="manual-section">
+        <h3>◈ OVERVIEW</h3>
+        <p>NEOHACK ULTIMATE is a browser-based hacking simulation puzzle game. Solve cryptography, Java programming, logic, and binary puzzles to earn XP, level up, and climb the leaderboard. Collect riddle keys to unlock special bonuses!</p>
+      </div>
+
+      <div className="manual-section">
+        <h3>◈ DIFFICULTY LEVELS</h3>
+        <ul>
+          <li><span style={{color:'var(--green)'}}>🟢 EASY</span> — Available from Level 1. 80–90 XP per puzzle. Timer: 120 seconds. Great for beginners.</li>
+          <li><span style={{color:'var(--orange)'}}>🟡 MEDIUM</span> — Unlocks at Level 3. 120–160 XP. Timer: 90 seconds. Java recursion, ROT13, XOR logic.</li>
+          <li><span style={{color:'var(--red)'}}>🔴 HARD</span> — Unlocks at Level 6. 220–280 XP. Timer: 60 seconds. RSA, Vigenère, Java threads, IEEE 754.</li>
+        </ul>
+      </div>
+
+      <div className="manual-section">
+        <h3>◈ SCORING SYSTEM</h3>
+        <ul>
+          <li>Each puzzle awards XP and Coins on correct answer</li>
+          <li>⚡ Time Bonus: Faster answers earn up to +50 bonus XP</li>
+          <li>💡 Hint Penalty: Using a hint reduces reward by 30%</li>
+          <li>🔥 Streak: Consecutive correct answers build your streak score</li>
+          <li>XP accumulates to level up (Level × 400 XP per level)</li>
+        </ul>
+      </div>
+
+      <div className="manual-section">
+        <h3>◈ PUZZLE TYPES</h3>
+        <ul>
+          <li><span style={{color:'var(--cyan)'}}>☕ JAVA</span> — Java code output, recursion, data structures, generics, threading</li>
+          <li><span style={{color:'var(--orange)'}}>🔐 ENCRYPT</span> — ROT13, Base64, Vigenère cipher, AES key sizes</li>
+          <li><span style={{color:'var(--green)'}}>⚙️ LOGIC</span> — Boolean logic, XOR/AND/OR gates, SQL, networking</li>
+          <li><span style={{color:'var(--pink)'}}>01 BINARY</span> — Binary conversion, two's complement, IEEE 754</li>
+          <li><span style={{color:'var(--blue)'}}>HEX</span> — Hex to ASCII, hex arithmetic</li>
+          <li><span style={{color:'var(--purple)'}}>🔑 CIPHER</span> — Caesar, Vigenère, ROT13 encryption/decryption</li>
+        </ul>
+      </div>
+
+      <div className="manual-section">
+        <h3>◈ RIDDLE KEYS</h3>
+        <p>Riddles are hidden in the RIDDLES tab. Solve them to earn unique keys. Each key unlocks a special reward:</p>
+        <ul>
+          <li>🔑 K3Y_4LPHA — Reveals hints for easy puzzles</li>
+          <li>🔑 TR4CE_BETA — 1.5× XP multiplier on medium puzzles</li>
+          <li>🔑 3CH0_GAMMA — Reveals a letter in hard puzzle answers</li>
+          <li>🔑 PR0T0_DELTA — +500 bonus coins instantly</li>
+          <li>🔑 FUT_EPSILON — Unlocks secret hard level puzzle</li>
+          <li>🔑 N0T_ZETA — Decrypts hidden vault message</li>
+        </ul>
+      </div>
+
+      <div className="manual-section">
+        <h3>◈ CRYPTO LABORATORY</h3>
+        <p>The Crypto Lab is a hands-on tool for encryption/decryption. Practice ROT13, Caesar cipher, Base64, Hex, Binary conversion, and more. Use it to train for puzzle types!</p>
+      </div>
+
+      <div className="manual-section">
+        <h3>◈ STORE</h3>
+        <p>Spend coins earned from puzzles to unlock and equip avatar emojis. Your avatar appears on the leaderboard. Rarer avatars cost more coins and signal elite status. The legendary PHANTOM avatar costs 5000💰!</p>
+      </div>
+
+      <div className="manual-section">
+        <h3>◈ TIPS & TRICKS</h3>
+        <ul>
+          <li>Answer fast! Time bonuses add up significantly over many puzzles</li>
+          <li>Only use hints if stuck — the 30% penalty hurts your coin gain</li>
+          <li>Medium/Hard puzzles have much higher coin rewards — save up for rare avatars</li>
+          <li>Check the Crypto Lab before attempting cipher puzzles</li>
+          <li>Riddle answers are common English words or short phrases</li>
+          <li>Java puzzles: remember operator precedence and type casting rules</li>
+        </ul>
+      </div>
+
+      <div style={{marginTop:16,padding:'10px 14px',background:'rgba(0,255,65,0.04)',border:'1px dashed var(--border)',borderRadius:6,fontSize:'0.75rem',color:'rgba(0,255,65,0.5)',textAlign:'center',letterSpacing:1}}>
+        NEOHACK ULTIMATE v4.0 | Made for elite hackers | Press F12 to debug ;)
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
