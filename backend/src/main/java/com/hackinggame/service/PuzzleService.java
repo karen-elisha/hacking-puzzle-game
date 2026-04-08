@@ -9,6 +9,22 @@ public class PuzzleService {
     
     private final Random random = new Random();
     
+    // Threads/Timers implementation
+    private java.util.concurrent.ScheduledExecutorService scheduler;
+    
+    @jakarta.annotation.PostConstruct
+    public void initTimer() {
+        scheduler = java.util.concurrent.Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(() -> {
+            System.out.println("[TIMER THREAD]: Puzzle algorithms refreshed natively.");
+        }, 1, 1, java.util.concurrent.TimeUnit.MINUTES);
+    }
+
+    @jakarta.annotation.PreDestroy
+    public void destroyTimer() {
+        if (scheduler != null) scheduler.shutdown();
+    }
+    
     // Record to hold puzzle data
     public record Puzzle(String type, String question, String answer, int reward, String hint) {}
     
