@@ -45,6 +45,9 @@ body{font-family:'Share Tech Mono',monospace;background:#000;min-height:100vh;ov
 .btn-red{background:#1a000a;border:1.5px solid var(--red);color:var(--red);padding:10px 20px;}
 .btn-red:hover{background:var(--red);color:#fff;box-shadow:0 0 25px var(--red);}
 .btn-full{width:100%;margin-top:8px;display:block;text-align:center;}
+/* Cyber Breach Button */
+.btn-breach{background:linear-gradient(135deg,#1a3300,#0a1a00);border:2px solid var(--gold);color:var(--gold);padding:8px 18px;border-radius:40px;font-weight:bold;letter-spacing:2px;transition:0.2s;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:0.8rem;}
+.btn-breach:hover{background:linear-gradient(135deg,#2a4a00,#1a2a00);box-shadow:0 0 20px var(--gold);transform:scale(1.02);}
 /* INPUTS */
 input,select{background:#000f07;border:1px solid var(--border);color:var(--green);font-family:'Share Tech Mono',monospace;font-size:1rem;padding:10px 14px;width:100%;outline:none;border-radius:4px;transition:border-color 0.2s;}
 input:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,255,249,0.4);}
@@ -341,13 +344,19 @@ function App(){
   const handleLogin=(u)=>{setUser(u);setPage('game');};
   const handleLogout=()=>{DB.clearSession();setUser(null);setPage('login');};
   const handleRegister=(u)=>{setUser(u);setPage('game');};
+  
+  // Cyber Breach handler
+  const handleCyberBreach=()=>{
+    SFX.play('click');
+    window.location.href = 'second.html';
+  };
 
   return(
     <>
       <NotifContainer notifs={notifs} setNotifs={setNotifs}/>
       {page==='login'&&<LoginPage onLogin={handleLogin} onRegister={()=>setPage('register')}/>}
       {page==='register'&&<RegisterPage onSuccess={handleRegister} onBack={()=>setPage('login')}/>}
-      {page==='game'&&user&&<GameDashboard user={user} setUser={setUser} onLogout={handleLogout}/>}
+      {page==='game'&&user&&<GameDashboard user={user} setUser={setUser} onLogout={handleLogout} onCyberBreach={handleCyberBreach}/>}
     </>
   );
 }
@@ -432,7 +441,7 @@ function RegisterPage({onSuccess,onBack}){
 }
 
 /* ===== MAIN DASHBOARD ===== */
-function GameDashboard({user,setUser,onLogout}){
+function GameDashboard({user,setUser,onLogout,onCyberBreach}){
   const[cu,setCu]=useState(user);
   const[tab,setTab]=useState('puzzles');
   const[logs,setLogs]=useState(['>> SYSTEM ONLINE | ENCRYPTION ACTIVE | WELCOME AGENT '+user.username]);
@@ -446,16 +455,21 @@ function GameDashboard({user,setUser,onLogout}){
 
   return(
     <div>
-      {/* HEADER */}
+      {/* HEADER with Cyber Breach button */}
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16,flexWrap:'wrap',gap:8}}>
         <div className="glitch" style={{fontSize:'1.8rem',letterSpacing:4}}>⚡ NEOHACK ULTIMATE</div>
-        <div style={{display:'flex',alignItems:'center',gap:10}}>
-          <span style={{fontSize:'1.8rem'}}>{cu.avatar}</span>
-          <div>
-            <div style={{color:'var(--green)',fontWeight:'bold',fontSize:'0.9rem'}}>{cu.username}</div>
-            <div style={{color:'var(--cyan)',fontSize:'0.75rem'}}>LVL {cu.level} | {cu.coins}💰</div>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <button className="btn-breach" onClick={onCyberBreach}>
+            <i className="fas fa-skull" style={{marginRight:'6px'}}></i> CYBER BREACH
+          </button>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <span style={{fontSize:'1.8rem'}}>{cu.avatar}</span>
+            <div>
+              <div style={{color:'var(--green)',fontWeight:'bold',fontSize:'0.9rem'}}>{cu.username}</div>
+              <div style={{color:'var(--cyan)',fontSize:'0.75rem'}}>LVL {cu.level} | {cu.coins}💰</div>
+            </div>
+            <button className="btn btn-red" onClick={onLogout} style={{padding:'6px 12px',fontSize:'0.75rem'}}>LOGOUT</button>
           </div>
-          <button className="btn btn-red" onClick={onLogout} style={{padding:'6px 12px',fontSize:'0.75rem'}}>LOGOUT</button>
         </div>
       </div>
 

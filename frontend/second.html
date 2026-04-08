@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYBERBREACH // SYSTEM INFILTRATION</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root {
+  --g: #00ff41; --g2: #00cc33; --c: #00fff9; --p: #ff00c1;
+  --o: #ff8c00; --gold: #ffd700; --r: #ff3366;
+  --bg: #000500; --card: #010a03;
+  --glow: 0 0 20px rgba(0,255,65,0.5);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Share Tech Mono', monospace;
+  background: var(--bg);
+  color: var(--g);
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: crosshair;
+  user-select: none;
+}
+
+/* SCANLINE OVERLAY */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+}
+/* MOVING SCAN LINE */
+.scan { position: fixed; top: -2px; left: 0; width: 100%; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--g), transparent);
+  opacity: 0.15; z-index: 9998; animation: scan 4s linear infinite; pointer-events:none; }
+@keyframes scan { to { top: 100vh; } }
+
+/* MATRIX BG */
+#matrix { position: fixed; inset: 0; z-index: 0; opacity: 0.5; }
+
+/* LAYOUT */
+.shell { position: relative; z-index: 10; max-width: 900px; margin: 0 auto; padding: 16px; }
+
+/* HEADER */
+.hdr {
+  border: 1px solid rgba(0,255,65,0.3);
+  background: rgba(0,10,3,0.95);
+  border-radius: 8px;
+  padding: 14px 20px;
+  margin-bottom: 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px;
+  backdrop-filter: blur(10px);
+}
+.logo {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 1.4rem;
+  letter-spacing: 4px;
+  color: var(--g);
+  text-shadow: 0 0 20px var(--g), 0 0 40px rgba(0,255,65,0.3);
+  animation: flicker 5s infinite;
+}
+@keyframes flicker {
+  0%,95%,100%{opacity:1}96%{opacity:0.8}97%{opacity:1}98%{opacity:0.6}99%{opacity:1}
+}
+.status-bar { display: flex; gap: 16px; align-items: center; font-size: 0.75rem; flex-wrap:wrap;}
+.status-dot { width:8px;height:8px;border-radius:50%;background:var(--g);box-shadow:0 0 8px var(--g);display:inline-block;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* BREACH METER */
+.breach-wrap { margin-bottom: 14px; }
+.breach-label { font-size: 0.72rem; letter-spacing: 3px; color: rgba(0,255,65,0.6); margin-bottom:4px; display:flex;justify-content:space-between; }
+.breach-track { height: 14px; background: #000a04; border: 1px solid rgba(0,255,65,0.3); border-radius: 2px; overflow:hidden;position:relative; }
+.breach-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--g2), var(--g), var(--c));
+  transition: width 0.8s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  box-shadow: 0 0 12px var(--g);
+}
+.breach-fill::after {
+  content:'';position:absolute;right:0;top:0;width:20px;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3));
+  animation: sweep 1.5s ease-in-out infinite;
+}
+@keyframes sweep{0%,100%{opacity:0}50%{opacity:1}}
+.breach-segments { position:absolute;inset:0;display:flex; }
+.breach-seg { flex:1;border-right:1px solid rgba(0,0,0,0.5); }
+
+/* LEVEL PANEL */
+.level-row { display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px; }
+.lvl-btn {
+  padding: 10px 6px; text-align:center; border-radius:6px; cursor:pointer;
+  border: 1px solid rgba(0,255,65,0.25); background: rgba(0,10,3,0.8);
+  transition: all 0.2s; font-size:0.72rem; letter-spacing:1px;
+  font-family:'Share Tech Mono',monospace;
+}
+.lvl-btn.active { border-color:var(--g); background:rgba(0,255,65,0.1); box-shadow:var(--glow); color:var(--g); }
+.lvl-btn.done { border-color:var(--c); color:var(--c); background:rgba(0,255,249,0.07); }
+.lvl-btn.locked { opacity:0.3; cursor:not-allowed; }
+.lvl-icon { font-size:1.4rem; margin-bottom:4px; }
+
+/* PUZZLE CARD */
+.card {
+  background: rgba(0,10,3,0.95);
+  border: 1px solid rgba(0,255,65,0.35);
+  border-radius:10px; padding:20px; margin-bottom:14px;
+  box-shadow: var(--glow), inset 0 0 30px rgba(0,255,65,0.02);
+  backdrop-filter:blur(8px);
+}
+.card-title {
+  font-family:'Orbitron',monospace; font-size:0.85rem; letter-spacing:3px;
+  color:var(--c); margin-bottom:14px; padding-bottom:10px;
+  border-bottom:1px solid rgba(0,255,65,0.2);
+  display:flex;align-items:center;gap:10px;
+}
+.tag { font-size:0.65rem; background:rgba(0,255,65,0.1); border:1px solid rgba(0,255,65,0.4); border-radius:100px; padding:2px 10px; color:var(--g); letter-spacing:1px; }
+
+/* === LOCKER PUZZLE === */
+.locker-wrap { display:flex;flex-direction:column;align-items:center;gap:16px; }
+
+/* CLUE DISPLAY */
+.clue-strip {
+  background:#000c06; border:1px solid rgba(0,255,249,0.3); border-radius:8px;
+  padding:14px 18px; width:100%; font-size:0.88rem; line-height:1.8;
+  color:#a0ffb0;
+}
+.clue-strip .lbl { color:var(--c); font-size:0.7rem; letter-spacing:2px; margin-bottom:6px; }
+
+/* CODE DISPLAY */
+.code-display {
+  display:flex; gap:10px; align-items:center; justify-content:center;
+}
+.digit-slot {
+  width:52px; height:68px;
+  background: linear-gradient(180deg, #001a0a 0%, #000c06 100%);
+  border: 2px solid var(--g);
+  border-radius: 6px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'VT323',monospace; font-size:2.6rem; color:var(--g);
+  box-shadow: 0 0 15px rgba(0,255,65,0.4), inset 0 0 10px rgba(0,255,65,0.1);
+  position:relative; overflow:hidden;
+  transition:all 0.15s;
+}
+.digit-slot.active-slot {
+  border-color:var(--c); box-shadow:0 0 20px rgba(0,255,249,0.6),inset 0 0 15px rgba(0,255,249,0.15);
+  color:var(--c);
+}
+.digit-slot.wrong { border-color:var(--r); box-shadow:0 0 20px rgba(255,51,102,0.6); animation:shake 0.4s; }
+.digit-slot.correct { border-color:var(--g); background:rgba(0,255,65,0.15); }
+@keyframes shake { 0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)} }
+.digit-slot::after {
+  content:''; position:absolute; top:0; left:0; right:0; height:50%;
+  background:linear-gradient(180deg,rgba(255,255,255,0.05),transparent);
+  border-radius:4px 4px 0 0;
+}
+.digit-sep { color:rgba(0,255,65,0.4); font-size:1.5rem; }
+
+/* HEX KEYPAD */
+.keypad {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:8px; width:100%; max-width:280px;
+}
+.key {
+  height:50px; border-radius:6px; border:1px solid rgba(0,255,65,0.3);
+  background: linear-gradient(180deg,#001a0a,#000c06);
+  color:var(--g); font-family:'VT323',monospace; font-size:1.5rem;
+  cursor:pointer; transition:all 0.1s; display:flex;align-items:center;justify-content:center;
+  box-shadow: inset 0 1px 0 rgba(0,255,65,0.1);
+  position:relative; overflow:hidden;
+}
+.key:hover { background:rgba(0,255,65,0.15); border-color:var(--g); box-shadow:0 0 12px rgba(0,255,65,0.4); transform:translateY(-1px); }
+.key:active { transform:translateY(1px); background:rgba(0,255,65,0.25); }
+.key.key-action { border-color:rgba(255,51,102,0.5); color:var(--r); }
+.key.key-action:hover { background:rgba(255,51,102,0.15); border-color:var(--r); box-shadow:0 0 12px rgba(255,51,102,0.4); }
+.key.key-enter { border-color:rgba(0,255,249,0.5); color:var(--c); font-size:0.9rem; letter-spacing:1px; font-family:'Share Tech Mono',monospace;}
+.key.key-enter:hover { background:rgba(0,255,249,0.15); border-color:var(--c); box-shadow:0 0 12px rgba(0,255,249,0.4); }
+
+/* HINT SYSTEM */
+.hints-row { display:flex;gap:8px;flex-wrap:wrap;justify-content:center; width:100%; }
+.hint-chip {
+  padding:6px 14px; border-radius:100px; border:1px solid rgba(255,140,0,0.4);
+  background:rgba(255,140,0,0.08); color:var(--o); font-size:0.72rem; cursor:pointer;
+  transition:all 0.2s; letter-spacing:1px;
+}
+.hint-chip:hover { background:rgba(255,140,0,0.2); box-shadow:0 0 10px rgba(255,140,0,0.3); }
+.hint-chip.used { opacity:0.4; cursor:not-allowed; text-decoration:line-through; }
+.hint-box {
+  background:#0a0500; border:1px solid var(--o); border-radius:8px; padding:12px 16px;
+  font-size:0.83rem; color:#ffcc66; line-height:1.6; width:100%;
+  animation: fadeIn 0.3s;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+
+/* ATTEMPTS */
+.attempts-row { display:flex;gap:6px;align-items:center;font-size:0.78rem;color:rgba(0,255,65,0.5); }
+.att-pip { width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,255,65,0.5); transition:all 0.3s; }
+.att-pip.used { background:var(--r); border-color:var(--r); box-shadow:0 0 6px var(--r); }
+.att-pip.left { background:var(--g); border-color:var(--g); box-shadow:0 0 6px var(--g); }
+
+/* TERMINAL LOG */
+.terminal {
+  height:130px; overflow-y:auto; background:#000804;
+  border:1px solid rgba(0,255,65,0.2); border-radius:6px; padding:10px 12px;
+  font-size:0.76rem; scroll-behavior:smooth;
+}
+.terminal::-webkit-scrollbar{width:3px;background:transparent;}
+.terminal::-webkit-scrollbar-thumb{background:rgba(0,255,65,0.3);}
+.tl { padding:2px 0; line-height:1.5; }
+.tl-g{color:var(--g)}.tl-c{color:var(--c)}.tl-r{color:var(--r)}.tl-o{color:var(--o)}.tl-gold{color:var(--gold)}
+
+/* SPECIAL PUZZLE TYPES */
+.wire-puzzle { display:flex;flex-direction:column;align-items:center;gap:14px; }
+.wire-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%; }
+.wire-cell {
+  height:60px;border-radius:6px;border:1px solid rgba(0,255,65,0.3);
+  background:#000c06;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:1.6rem;transition:all 0.2s;
+  position:relative;
+}
+.wire-cell:hover{border-color:var(--g);box-shadow:0 0 12px rgba(0,255,65,0.3);}
+.wire-cell.selected{border-color:var(--c);box-shadow:0 0 15px rgba(0,255,249,0.4);background:rgba(0,255,249,0.08);}
+.wire-cell.matched{border-color:var(--g);background:rgba(0,255,65,0.15);box-shadow:0 0 12px rgba(0,255,65,0.4);}
+.wire-cell.wrong{border-color:var(--r);background:rgba(255,51,102,0.08);animation:shake 0.3s;}
+
+/* SEQUENCE PUZZLE */
+.seq-display { display:flex;gap:8px;justify-content:center;flex-wrap:wrap; }
+.seq-item {
+  width:44px;height:44px;border-radius:6px;border:1px solid rgba(0,255,65,0.3);
+  background:#000c06;display:flex;align-items:center;justify-content:center;
+  font-family:'VT323',monospace;font-size:1.4rem;cursor:pointer;transition:all 0.2s;
+}
+.seq-item:hover{border-color:var(--g);box-shadow:0 0 10px rgba(0,255,65,0.3);}
+.seq-item.active{border-color:var(--c);background:rgba(0,255,249,0.1);box-shadow:0 0 15px rgba(0,255,249,0.4);}
+.seq-item.done-right{border-color:var(--g);background:rgba(0,255,65,0.15);}
+
+/* SUCCESS SCREEN */
+.success-screen {
+  display:none;position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,0.95);
+  flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:20px;
+}
+.success-screen.show{display:flex;}
+.hacked-title {
+  font-family:'Orbitron',monospace;font-weight:900;
+  font-size:clamp(2.5rem,8vw,5rem);letter-spacing:8px;
+  color:var(--g);text-shadow:0 0 40px var(--g),0 0 80px rgba(0,255,65,0.4);
+  animation: hack-pulse 0.5s infinite alternate;
+  margin-bottom:16px;
+}
+@keyframes hack-pulse{from{text-shadow:0 0 40px var(--g),0 0 80px rgba(0,255,65,0.4);}to{text-shadow:0 0 60px var(--g),0 0 120px rgba(0,255,65,0.6),0 0 180px rgba(0,255,65,0.2);}}
+.access-granted { font-size:1.4rem;color:var(--c);letter-spacing:6px;margin-bottom:30px;font-family:'VT323',monospace;animation:blink 1s infinite; }
+@keyframes blink{50%{opacity:0.3}}
+.data-stream { font-size:0.8rem;color:rgba(0,255,65,0.5);max-width:500px;line-height:2;margin-bottom:30px; }
+.glitch-text {
+  font-family:'Orbitron',monospace;font-size:1.2rem;letter-spacing:4px;
+  position:relative;
+  animation:glitch 2s infinite;
+}
+@keyframes glitch{
+  0%,90%,100%{text-shadow:none;transform:none}
+  92%{text-shadow:-2px 0 var(--p);transform:translateX(2px)}
+  94%{text-shadow:2px 0 var(--c);transform:translateX(-2px)}
+  96%{text-shadow:-1px 0 var(--r);transform:translateX(1px)}
+}
+
+/* FINAL WIN PARTICLES */
+.particle { position:fixed;pointer-events:none;font-size:1rem;animation:fall linear forwards;z-index:1001; }
+@keyframes fall { to{transform:translateY(110vh) rotate(720deg);opacity:0;} }
+
+/* BUTTONS */
+.btn {
+  font-family:'Share Tech Mono',monospace;letter-spacing:2px;text-transform:uppercase;
+  border-radius:4px;cursor:pointer;transition:all 0.15s;padding:10px 20px;font-size:0.82rem;
+}
+.btn-g{background:#001a09;border:1.5px solid var(--g);color:var(--g);}
+.btn-g:hover{background:var(--g);color:#000;box-shadow:0 0 20px var(--g);}
+.btn-c{background:#00101a;border:1.5px solid var(--c);color:var(--c);}
+.btn-c:hover{background:var(--c);color:#000;box-shadow:0 0 20px var(--c);}
+.btn-r{background:#1a000a;border:1.5px solid var(--r);color:var(--r);}
+.btn-r:hover{background:var(--r);color:#fff;box-shadow:0 0 20px var(--r);}
+
+/* SCORE */
+.score-row { display:flex;gap:16px;font-size:0.78rem;flex-wrap:wrap; }
+.sc { background:rgba(0,10,3,0.9);border:1px solid rgba(0,255,65,0.2);border-radius:4px;padding:4px 12px; }
+.sc span{color:rgba(0,255,65,0.5);margin-right:4px;}
+
+/* RESPONSIVE */
+@media(max-width:500px){.keypad{max-width:240px;}.digit-slot{width:42px;height:56px;font-size:2rem;}}
+</style>
+</head>
+<body>
+<canvas id="matrix"></canvas>
+<div class="scan"></div>
+
+<div class="shell">
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="logo">⚡ CYBERBREACH</div>
+    <div class="status-bar">
+      <span><span class="status-dot"></span> LIVE</span>
+      <span style="color:rgba(0,255,65,0.5)">AGENT://anonymous</span>
+      <div class="score-row">
+        <div class="sc"><span>SCORE</span><strong id="scoreVal">0</strong></div>
+        <div class="sc"><span>TIME</span><strong id="timerVal">--:--</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BREACH METER -->
+  <div class="breach-wrap">
+    <div class="breach-label">
+      <span>▸ SYSTEM BREACH PROGRESS</span>
+      <span id="breachPct">0%</span>
+    </div>
+    <div class="breach-track">
+      <div class="breach-fill" id="breachFill" style="width:0%">
+        <div class="breach-segments">
+          <div class="breach-seg"></div><div class="breach-seg"></div>
+          <div class="breach-seg"></div><div class="breach-seg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEVEL SELECT -->
+  <div class="level-row" id="levelRow"></div>
+
+  <!-- PUZZLE AREA -->
+  <div class="card" id="puzzleCard">
+    <div class="card-title">
+      <span id="puzzleTitle">SELECT A SECTOR</span>
+      <span class="tag" id="puzzleTag">OFFLINE</span>
+    </div>
+    <div id="puzzleBody" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;color:rgba(0,255,65,0.3);font-size:0.85rem;letter-spacing:2px;">
+      ▸ Select a security sector above to begin infiltration...
+    </div>
+  </div>
+
+  <!-- TERMINAL -->
+  <div class="card" style="padding:14px;">
+    <div style="font-size:0.7rem;letter-spacing:2px;color:rgba(0,255,65,0.5);margin-bottom:8px;">▸ HACK_TERMINAL</div>
+    <div class="terminal" id="terminal"></div>
+  </div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div class="success-screen" id="successScreen">
+  <div class="glitch-text" style="color:var(--r);margin-bottom:16px;font-size:0.9rem;letter-spacing:6px;">◈ FINAL SECURITY LAYER BYPASSED ◈</div>
+  <div class="hacked-title">SYSTEM<br>HACKED</div>
+  <div class="access-granted">/// ACCESS GRANTED ///</div>
+  <div class="data-stream" id="dataStream">
+    EXTRACTING CLASSIFIED FILES...<br>
+    CORE DATABASE: <span id="dbStatus">DECRYPTED ✓</span><br>
+    ENCRYPTION KEYS: COMPROMISED ✓<br>
+    SURVEILLANCE FEEDS: DISABLED ✓<br>
+    TRACE ROUTE: ELIMINATED ✓<br><br>
+    <span style="color:var(--gold)">ALL 4 SECURITY SECTORS NEUTRALIZED</span>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <button class="btn btn-g" onclick="resetGame()">⟳ NEW MISSION</button>
+    <button class="btn btn-c" onclick="document.getElementById('successScreen').classList.remove('show')">✕ CLOSE</button>
+  </div>
+</div>
+
+<script>
+// MATRIX RAIN
+(function(){
+  const c=document.getElementById('matrix');
+  const ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  const chars='01アイウエオABCDEF<>{}[]#@!01010100110';
+  let drops=[];
+  function reset(){drops=Array(Math.floor(c.width/18)).fill(0).map(()=>Math.random()*-50);}
+  reset();window.addEventListener('resize',reset);
+  setInterval(()=>{
+    ctx.fillStyle='rgba(0,5,0,0.04)';ctx.fillRect(0,0,c.width,c.height);
+    ctx.font='13px monospace';
+    drops.forEach((y,i)=>{
+      ctx.fillStyle=i%7===0?'#00fff9':i%5===0?'#00ff41':'rgba(0,255,65,0.5)';
+      ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*18,y*18);
+      if(y*18>c.height&&Math.random()>0.975)drops[i]=0;
+      drops[i]++;
+    });
+  },60);
+})();
+
+// AUDIO
+const SFX={
+  _ctx:null,ctx(){if(!this._ctx)this._ctx=new(AudioContext||webkitAudioContext)();return this._ctx;},
+  beep(freq=440,dur=0.1,type='square',vol=0.15){
+    try{const c=this.ctx(),o=c.createOscillator(),g=c.createGain();
+    o.connect(g);g.connect(c.destination);o.type=type;
+    const t=c.currentTime;o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    o.start(t);o.stop(t+dur);}catch(e){}
+  },
+  click(){this.beep(800,0.05,'square',0.1);},
+  error(){this.beep(150,0.3,'sawtooth',0.2);},
+  success(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>this.beep(f,0.12,'square',0.15),i*80));},
+  levelup(){[262,330,392,523,659,784,1047].forEach((f,i)=>setTimeout(()=>this.beep(f,0.15,'square',0.18),i*70));},
+  key(){this.beep(1200+Math.random()*300,0.04,'sine',0.08);}
+};
+
+// STATE
+let score=0,totalTime=0,timerInterval=null;
+let levels=[
+  {id:0,name:'SECTOR-A',icon:'🔒',tag:'LOCKER',done:false,unlocked:true,type:'locker',
+   title:'LOCKER PROTOCOL — ACCESS TERMINAL',
+   desc:'Crack the 4-digit hex security code. Analyze the clues carefully.',
+   code:['8','A','3','F'],
+   clues:[
+     'The first digit is the result of 4 + 4 in hexadecimal.',
+     'The second digit is the hex value of 10 decimal.',
+     'The third digit — I count three, no more no less.',
+     'The final digit is the highest single hex digit.'
+   ],
+   hints:['Hex digits go: 0-9, then A-F','4+4=8 in any base below 9','Decimal 10 = A in hex','Single hex digits max out at F'],
+   xp:200
+  },
+  {id:1,name:'SECTOR-B',icon:'🔗',tag:'SEQUENCE',done:false,unlocked:false,type:'sequence',
+   title:'SEQUENCE CIPHER — PATTERN LOCK',
+   desc:'Reconstruct the Fibonacci-encoded sequence to unlock the firewall.',
+   sequence:[1,1,2,3,5,8,13,21],
+   missing:[3,5,6],
+   hints:['Each number = sum of the two before it','Start: 1, 1, 2, 3, 5...','Position 4 is 3, position 5 is 5','The 7th Fibonacci number is 13'],
+   xp:300
+  },
+  {id:2,name:'SECTOR-C',icon:'⚡',tag:'WIRE-MATCH',done:false,unlocked:false,type:'wire',
+   title:'WIRE MATRIX — CIRCUIT MATCH',
+   desc:'Match each cipher symbol to its decoded counterpart to complete the circuit.',
+   pairs:[
+     {id:0,sym:'01001000',val:'H',emoji:'💻'},
+     {id:1,sym:'ROT13:UNPX',val:'HACK',emoji:'🔐'},
+     {id:2,sym:'0x4e',val:'78',emoji:'⚙️'},
+     {id:3,sym:'Caesar-3:KDFN',val:'HACK',emoji:'🗝️'},
+     {id:4,sym:'Base64:aGk=',val:'hi',emoji:'📡'},
+     {id:5,sym:'XOR 5⊕3',val:'6',emoji:'🧮'},
+   ],
+   hints:['Binary 01001000 → convert to ASCII','ROT13 shifts each letter 13 places','0x4e = 4×16 + 14 = ?','Caesar-3 means shift back 3','Base64 decode aGk=','5 XOR 3: 101 XOR 011 = ?'],
+   xp:400
+  },
+  {id:3,name:'SECTOR-D',icon:'🛡️',tag:'FINAL',done:false,unlocked:false,type:'final',
+   title:'CORE MAINFRAME — MASTER KEY',
+   desc:'Enter the master decryption passphrase to breach the final security layer.',
+   code:['H','A','C','K','E','D'],
+   clues:[
+     'Binary 01001000 decoded is the 1st letter.',
+     'Hex 0x41 decoded is the 2nd letter.',
+     'ROT13 of "P" is the 3rd letter.',
+     'The 4th letter is the 11th in the alphabet.',
+     'ASCII decimal 69 is the 5th letter.',
+     'The 6th is: SHA of empty string starts with "e3b"... its initial hex letter maps to decimal 13, but use the letter D.'
+   ],
+   hints:['01001000 binary = 72 decimal = H','0x41 = 65 decimal = A','ROT13 shifts C to C','K is the 11th letter','ASCII 69 = E','Just use D — you\'re almost there!'],
+   xp:600
+  }
+];
+
+let currentLevel=null;
+let timerSec=0;
+
+// INIT
+function init(){
+  log('CYBERBREACH v2.0 INITIALIZED','tl-c');
+  log('Target system identified. Beginning infiltration sequence...','tl-g');
+  log('4 security sectors detected. Breach all to gain root access.','tl-o');
+  renderLevels();
+  startTimer();
+}
+
+function startTimer(){
+  timerInterval=setInterval(()=>{
+    timerSec++;
+    const m=String(Math.floor(timerSec/60)).padStart(2,'0');
+    const s=String(timerSec%60).padStart(2,'0');
+    document.getElementById('timerVal').textContent=m+':'+s;
+  },1000);
+}
+
+function log(msg,cls='tl-g'){
+  const t=document.getElementById('terminal');
+  const d=document.createElement('div');
+  d.className='tl '+cls;
+  d.textContent='> '+msg;
+  t.appendChild(d);
+  t.scrollTop=t.scrollHeight;
+}
+
+function updateScore(pts){
+  score+=pts;
+  document.getElementById('scoreVal').textContent=score;
+}
+
+function updateBreach(){
+  const done=levels.filter(l=>l.done).length;
+  const pct=Math.round((done/levels.length)*100);
+  document.getElementById('breachFill').style.width=pct+'%';
+  document.getElementById('breachPct').textContent=pct+'%';
+}
+
+function renderLevels(){
+  const row=document.getElementById('levelRow');
+  row.innerHTML='';
+  levels.forEach((lv,i)=>{
+    const d=document.createElement('div');
+    d.className='lvl-btn'+(lv.done?' done':lv.unlocked?' active':' locked');
+    d.innerHTML=`<div class="lvl-icon">${lv.done?'✅':lv.icon}</div><div>${lv.name}</div><div style="font-size:0.65rem;color:rgba(0,255,65,0.4);margin-top:3px">${lv.tag}</div>`;
+    if(lv.unlocked&&!lv.done) d.onclick=()=>{SFX.click();loadLevel(i);};
+    else if(lv.done) d.onclick=()=>{SFX.click();loadLevel(i);};
+    row.appendChild(d);
+  });
+}
+
+function loadLevel(idx){
+  currentLevel=idx;
+  const lv=levels[idx];
+  document.getElementById('puzzleTitle').textContent=lv.title;
+  document.getElementById('puzzleTag').textContent=lv.tag;
+  log('--- Accessing '+lv.name+' ---','tl-c');
+  const body=document.getElementById('puzzleBody');
+  if(lv.type==='locker') renderLocker(lv,body);
+  else if(lv.type==='sequence') renderSequence(lv,body);
+  else if(lv.type==='wire') renderWire(lv,body);
+  else if(lv.type==='final') renderFinal(lv,body);
+}
+
+// ===== LOCKER PUZZLE =====
+function renderLocker(lv,body){
+  let input=[];
+  let attempts=5;
+  let hintsUsed=[];
+  let solved=false;
+
+  const render=()=>{
+    body.innerHTML='';
+    body.style.display='flex';
+    body.style.flexDirection='column';
+    body.style.alignItems='center';
+    body.style.gap='16px';
+
+    // Clues
+    const clueBox=document.createElement('div');
+    clueBox.className='clue-strip';
+    clueBox.innerHTML=`<div class="lbl">◈ INTERCEPTED INTEL — DECODE TO CRACK</div>`+
+      lv.clues.map((c,i)=>`<div style="padding:3px 0;color:${input.length>i?'var(--c)':'#a0ffb0'}">
+        [${String(i+1).padStart(2,'0')}] ${c}</div>`).join('');
+    body.appendChild(clueBox);
+
+    // Code display
+    const codeWrap=document.createElement('div');
+    codeWrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;';
+    
+    const display=document.createElement('div');
+    display.className='code-display';
+    lv.code.forEach((_,i)=>{
+      const slot=document.createElement('div');
+      slot.className='digit-slot'+(i===input.length&&!solved?' active-slot':'')+(solved?' correct':'');
+      slot.textContent=i<input.length?input[i]:(solved?lv.code[i]:'_');
+      if(i<input.length&&!solved) slot.style.color='var(--c)';
+      display.appendChild(slot);
+      if(i<lv.code.length-1){const sep=document.createElement('div');sep.className='digit-sep';sep.textContent='·';display.appendChild(sep);}
+    });
+    codeWrap.appendChild(display);
+
+    // Attempts
+    const attRow=document.createElement('div');
+    attRow.className='attempts-row';
+    attRow.innerHTML='ATTEMPTS: ';
+    const pipWrap=document.createElement('div');pipWrap.style.cssText='display:flex;gap:5px;';
+    for(let i=0;i<5;i++){const pip=document.createElement('div');pip.className='att-pip'+(i<5-attempts?' used':' left');pipWrap.appendChild(pip);}
+    attRow.appendChild(pipWrap);
+    codeWrap.appendChild(attRow);
+    body.appendChild(codeWrap);
+
+    // Keypad
+    if(!solved){
+      const kp=document.createElement('div');
+      kp.className='keypad';
+      const keys=['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'];
+      keys.forEach(k=>{
+        const btn=document.createElement('button');
+        btn.className='key';btn.textContent=k;
+        btn.onclick=()=>{
+          SFX.key();
+          if(input.length<lv.code.length){input.push(k);render();}
+          if(input.length===lv.code.length) checkLocker();
+        };
+        kp.appendChild(btn);
+      });
+      // DEL + ENTER
+      const del=document.createElement('button');del.className='key key-action';del.textContent='⌫';
+      del.onclick=()=>{SFX.click();input.pop();render();};
+      const clr=document.createElement('button');clr.className='key key-action';clr.textContent='CLR';
+      clr.onclick=()=>{SFX.click();input=[];render();};
+      kp.appendChild(del);kp.appendChild(clr);
+      body.appendChild(kp);
+    }
+
+    // Hints
+    const hintRow=document.createElement('div');hintRow.className='hints-row';
+    lv.hints.forEach((h,i)=>{
+      const chip=document.createElement('div');
+      chip.className='hint-chip'+(hintsUsed.includes(i)?' used':'');
+      chip.textContent=hintsUsed.includes(i)?'HINT '+(i+1)+' USED':'💡 HINT '+(i+1);
+      if(!hintsUsed.includes(i)){chip.onclick=()=>{
+        SFX.click();hintsUsed.push(i);
+        const hb=document.getElementById('hintBox')||document.createElement('div');
+        hb.id='hintBox';hb.className='hint-box';hb.textContent='💡 '+h;
+        body.appendChild(hb);
+        log('Hint accessed — score penalty applied','tl-o');
+        render();
+      };}
+      hintRow.appendChild(chip);
+    });
+    body.appendChild(hintRow);
+
+    if(hintsUsed.length>0&&!solved){
+      const hb=document.createElement('div');hb.className='hint-box';
+      hb.textContent='💡 '+lv.hints[hintsUsed[hintsUsed.length-1]];
+      body.appendChild(hb);
+    }
+  };
+
+  const checkLocker=()=>{
+    const correct=input.join('')===lv.code.join('');
+    if(correct){
+      solved=true;render();
+      SFX.success();
+      log('✅ CODE ACCEPTED: '+input.join('')+' — SECTOR-A BREACHED','tl-gold');
+      const penalty=hintsUsed.length*20;
+      const xp=Math.max(50,lv.xp-penalty);
+      updateScore(xp);
+      setTimeout(()=>completeLevelById(0),1200);
+    }else{
+      attempts--;
+      const slots=document.querySelectorAll('.digit-slot');
+      slots.forEach(s=>s.classList.add('wrong'));
+      SFX.error();
+      log('❌ WRONG CODE: '+input.join('')+' | Attempts left: '+attempts,'tl-r');
+      setTimeout(()=>{input=[];if(attempts<=0){log('🚨 ACCESS LOCKED — TOO MANY WRONG ATTEMPTS','tl-r');attempts=5;}render();},800);
+    }
+  };
+
+  render();
+}
+
+// ===== SEQUENCE PUZZLE =====
+function renderSequence(lv,body){
+  let answers={};
+  let hintsUsed=[];
+  const seq=lv.sequence;
+  const missing=lv.missing;
+
+  body.innerHTML='';
+  body.style.cssText='display:flex;flex-direction:column;align-items:center;gap:16px;';
+
+  const clueBox=document.createElement('div');
+  clueBox.className='clue-strip';
+  clueBox.innerHTML='<div class="lbl">◈ FIBONACCI FIREWALL — FILL THE GAPS</div>'+
+    '<div style="color:#a0ffb0;font-size:0.85rem;line-height:1.8;">The security system uses a Fibonacci-encoded pattern. Fill in the missing values (marked with ?) to unlock the sequence.</div>';
+  body.appendChild(clueBox);
+
+  const seqWrap=document.createElement('div');
+  seqWrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;';
+
+  const seqRow=document.createElement('div');
+  seqRow.style.cssText='display:flex;gap:8px;justify-content:center;flex-wrap:wrap;';
+
+  seq.forEach((val,i)=>{
+    if(missing.includes(i)){
+      const inp=document.createElement('input');
+      inp.type='number';inp.placeholder='?';
+      inp.style.cssText='width:52px;height:52px;text-align:center;font-size:1.3rem;font-family:VT323,monospace;border-radius:6px;border:2px solid rgba(0,255,249,0.5);background:#000c06;color:var(--c);padding:0;';
+      inp.oninput=()=>{answers[i]=parseInt(inp.value);SFX.key();};
+      seqRow.appendChild(inp);
+    }else{
+      const box=document.createElement('div');
+      box.style.cssText='width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:#001a0a;border:1px solid rgba(0,255,65,0.4);border-radius:6px;font-family:VT323,monospace;font-size:1.5rem;color:var(--g);';
+      box.textContent=val;
+      seqRow.appendChild(box);
+    }
+  });
+
+  seqWrap.appendChild(seqRow);
+
+  const checkBtn=document.createElement('button');
+  checkBtn.className='btn btn-c';checkBtn.textContent='⫸ SUBMIT SEQUENCE';
+  checkBtn.onclick=()=>{
+    SFX.click();
+    let ok=true;
+    missing.forEach(i=>{if(answers[i]!==seq[i])ok=false;});
+    if(ok){
+      SFX.success();log('✅ FIBONACCI SEQUENCE CONFIRMED — SECTOR-B UNLOCKED','tl-gold');
+      const xp=Math.max(100,lv.xp-hintsUsed.length*30);
+      updateScore(xp);
+      body.innerHTML='<div style="text-align:center;font-size:2rem;color:var(--g);text-shadow:0 0 20px var(--g);">✅ SEQUENCE VERIFIED<br><span style="font-size:0.9rem;color:var(--c);letter-spacing:2px">FIREWALL BYPASSED</span></div>';
+      setTimeout(()=>completeLevelById(1),1200);
+    }else{
+      SFX.error();log('❌ Incorrect sequence — re-analyze the Fibonacci pattern','tl-r');
+      seqRow.style.animation='shake 0.4s';setTimeout(()=>seqRow.style.animation='',500);
+    }
+  };
+  seqWrap.appendChild(checkBtn);
+
+  // Hints
+  const hintRow=document.createElement('div');hintRow.className='hints-row';
+  lv.hints.forEach((h,i)=>{
+    const chip=document.createElement('div');chip.className='hint-chip'+(hintsUsed.includes(i)?' used':'');
+    chip.textContent=hintsUsed.includes(i)?'HINT '+(i+1)+' USED':'💡 HINT '+(i+1);
+    if(!hintsUsed.includes(i))chip.onclick=()=>{
+      SFX.click();hintsUsed.push(i);
+      const hb=document.getElementById('seqHint')||document.createElement('div');
+      hb.id='seqHint';hb.className='hint-box';hb.textContent='💡 '+h;
+      seqWrap.insertBefore(hb,checkBtn);
+      log('Hint accessed','tl-o');
+    };
+    hintRow.appendChild(chip);
+  });
+  seqWrap.appendChild(hintRow);
+  body.appendChild(seqWrap);
+}
+
+// ===== WIRE MATCH PUZZLE =====
+function renderWire(lv,body){
+  let selected=null;
+  let matched=[];
+  let hintsUsed=[];
+  let errors=0;
+
+  const pairs=lv.pairs;
+  // Build shuffled left (syms) and right (vals)
+  const lefts=[...pairs].sort(()=>Math.random()-0.5);
+  const rights=[...pairs].sort(()=>Math.random()-0.5);
+
+  const render=()=>{
+    body.innerHTML='';
+    body.style.cssText='display:flex;flex-direction:column;align-items:center;gap:14px;';
+
+    const clueBox=document.createElement('div');clueBox.className='clue-strip';
+    clueBox.innerHTML='<div class="lbl">◈ WIRE MATRIX — MATCH CIPHER → DECODED VALUE</div>'+
+      '<div style="font-size:0.82rem;color:#a0ffb0;">Click a cipher on the LEFT, then its decoded value on the RIGHT. Complete all 6 pairs.</div>';
+    body.appendChild(clueBox);
+
+    const grid=document.createElement('div');
+    grid.style.cssText='display:grid;grid-template-columns:1fr 40px 1fr;gap:8px;width:100%;';
+
+    // LEFT column
+    const leftCol=document.createElement('div');leftCol.style.cssText='display:flex;flex-direction:column;gap:8px;';
+    lefts.forEach(p=>{
+      const isMatched=matched.includes(p.id);
+      const cell=document.createElement('div');
+      cell.style.cssText='padding:10px;border-radius:6px;border:1px solid '+(isMatched?'var(--g)':selected&&selected.side==='L'&&selected.id===p.id?'var(--c)':'rgba(0,255,65,0.3)')+';background:'+(isMatched?'rgba(0,255,65,0.1)':selected&&selected.side==='L'&&selected.id===p.id?'rgba(0,255,249,0.08)':'#000c06')+';cursor:'+(isMatched?'default':'pointer')+';font-size:0.78rem;color:'+(isMatched?'var(--g)':'#a0ffb0')+';transition:all 0.2s;word-break:break-all;line-height:1.5;text-align:center;';
+      cell.textContent=(isMatched?'✅ ':p.emoji+' ')+p.sym;
+      if(!isMatched) cell.onclick=()=>{SFX.key();selected={id:p.id,side:'L'};render();};
+      leftCol.appendChild(cell);
+    });
+
+    // CENTER connector
+    const center=document.createElement('div');center.style.cssText='display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;';
+    for(let i=0;i<6;i++){const ln=document.createElement('div');ln.style.cssText='width:2px;height:40px;background:'+(matched.includes(lefts[i]?.id)?'var(--g)':'rgba(0,255,65,0.15)')+';';center.appendChild(ln);}
+
+    // RIGHT column
+    const rightCol=document.createElement('div');rightCol.style.cssText='display:flex;flex-direction:column;gap:8px;';
+    rights.forEach(p=>{
+      const isMatched=matched.includes(p.id);
+      const cell=document.createElement('div');
+      cell.style.cssText='padding:10px;border-radius:6px;border:1px solid '+(isMatched?'var(--g)':selected&&selected.side==='R'&&selected.id===p.id?'var(--c)':'rgba(0,255,65,0.3)')+';background:'+(isMatched?'rgba(0,255,65,0.1)':selected&&selected.side==='R'&&selected.id===p.id?'rgba(0,255,249,0.08)':'#000c06')+';cursor:'+(isMatched?'default':'pointer')+';font-size:0.9rem;color:'+(isMatched?'var(--g)':'var(--c)')+';transition:all 0.2s;text-align:center;font-family:VT323,monospace;font-size:1.2rem;';
+      cell.textContent=(isMatched?'✅ ':'')+p.val;
+      if(!isMatched) cell.onclick=()=>{
+        SFX.key();
+        if(!selected||selected.side==='R'){selected={id:p.id,side:'R'};render();return;}
+        if(selected.side==='L'){
+          // check match
+          if(selected.id===p.id){
+            matched.push(p.id);SFX.success();
+            log('✅ MATCHED: '+pairs.find(x=>x.id===p.id).sym+' → '+p.val,'tl-g');
+            selected=null;render();
+            if(matched.length===pairs.length){
+              const xp=Math.max(150,lv.xp-hintsUsed.length*40-errors*20);
+              updateScore(xp);
+              body.innerHTML='<div style="text-align:center;font-size:2rem;color:var(--g);text-shadow:0 0 20px var(--g);">⚡ ALL CIRCUITS CONNECTED<br><span style="font-size:0.9rem;color:var(--c);letter-spacing:2px">SECTOR-C NEUTRALIZED</span></div>';
+              log('✅ ALL WIRES MATCHED — SECTOR-C BREACHED','tl-gold');
+              setTimeout(()=>completeLevelById(2),1200);
+            }
+          }else{
+            errors++;SFX.error();log('❌ Mismatch! +1 error penalty','tl-r');
+            selected=null;
+            cell.style.border='1px solid var(--r)';cell.style.background='rgba(255,51,102,0.08)';
+            setTimeout(()=>render(),600);
+          }
+        }
+      };
+      rightCol.appendChild(cell);
+    });
+
+    grid.appendChild(leftCol);grid.appendChild(center);grid.appendChild(rightCol);
+    body.appendChild(grid);
+
+    // Progress
+    const prog=document.createElement('div');
+    prog.style.cssText='font-size:0.75rem;color:rgba(0,255,65,0.5);letter-spacing:2px;';
+    prog.textContent='CIRCUITS: '+matched.length+'/'+pairs.length+' | ERRORS: '+errors;
+    body.appendChild(prog);
+
+    // Hints
+    const hintRow=document.createElement('div');hintRow.className='hints-row';
+    lv.hints.forEach((h,i)=>{
+      const chip=document.createElement('div');chip.className='hint-chip'+(hintsUsed.includes(i)?' used':'');
+      chip.textContent=hintsUsed.includes(i)?'HINT '+(i+1):pairs[i].emoji+' HINT';
+      if(!hintsUsed.includes(i))chip.onclick=()=>{
+        SFX.click();hintsUsed.push(i);
+        const hb=document.createElement('div');hb.className='hint-box';
+        hb.textContent='💡 [Pair '+(i+1)+'] '+h;
+        body.appendChild(hb);log('Hint used for pair '+(i+1),'tl-o');
+      };
+      hintRow.appendChild(chip);
+    });
+    body.appendChild(hintRow);
+  };
+  render();
+}
+
+// ===== FINAL PUZZLE =====
+function renderFinal(lv,body){
+  let input=[];
+  let hintsUsed=[];
+  let solved=false;
+  let attempts=5;
+
+  const render=()=>{
+    body.innerHTML='';
+    body.style.cssText='display:flex;flex-direction:column;align-items:center;gap:14px;';
+
+    const clueBox=document.createElement('div');clueBox.className='clue-strip';
+    clueBox.style.borderColor='rgba(255,0,193,0.4)';
+    clueBox.innerHTML='<div class="lbl" style="color:var(--p)">◈ MASTER KEY — DECODE ALL 6 SYMBOLS</div>'+
+      lv.clues.map((c,i)=>`<div style="padding:3px 0;color:${input.length>i?'var(--p)':'#a0ffb0'}">[${String(i+1).padStart(2,'0')}] ${c}</div>`).join('');
+    body.appendChild(clueBox);
+
+    // 6-digit display
+    const display=document.createElement('div');display.className='code-display';display.style.flexWrap='wrap';
+    lv.code.forEach((_,i)=>{
+      const slot=document.createElement('div');
+      slot.className='digit-slot'+(i===input.length&&!solved?' active-slot':'')+(solved?' correct':'');
+      slot.style.borderColor=solved?'var(--p)':'';
+      slot.style.boxShadow=solved?'0 0 20px rgba(255,0,193,0.6)':'';
+      slot.textContent=i<input.length?input[i]:(solved?lv.code[i]:'_');
+      display.appendChild(slot);
+    });
+    body.appendChild(display);
+
+    // Attempts
+    const attRow=document.createElement('div');attRow.className='attempts-row';
+    attRow.innerHTML='ATTEMPTS: ';
+    const pipWrap=document.createElement('div');pipWrap.style.cssText='display:flex;gap:5px;';
+    for(let i=0;i<5;i++){const pip=document.createElement('div');pip.className='att-pip'+(i<5-attempts?' used':' left');pipWrap.appendChild(pip);}
+    attRow.appendChild(pipWrap);
+    body.appendChild(attRow);
+
+    if(!solved){
+      // Alpha keypad A-Z
+      const kp=document.createElement('div');
+      kp.style.cssText='display:grid;grid-template-columns:repeat(7,1fr);gap:6px;max-width:340px;';
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(k=>{
+        const btn=document.createElement('button');btn.className='key';btn.textContent=k;
+        btn.style.cssText='height:38px;font-size:1.1rem;';
+        btn.onclick=()=>{SFX.key();if(input.length<lv.code.length){input.push(k);render();}if(input.length===lv.code.length)checkFinal();};
+        kp.appendChild(btn);
+      });
+      const del=document.createElement('button');del.className='key key-action';del.style.cssText='height:38px;';del.textContent='⌫';
+      del.onclick=()=>{SFX.click();input.pop();render();};
+      const clr=document.createElement('button');clr.className='key key-action';clr.style.cssText='height:38px;';clr.textContent='CLR';
+      clr.onclick=()=>{SFX.click();input=[];render();};
+      kp.appendChild(del);kp.appendChild(clr);
+      body.appendChild(kp);
+    }
+
+    // Hints
+    const hintRow=document.createElement('div');hintRow.className='hints-row';
+    lv.hints.forEach((h,i)=>{
+      const chip=document.createElement('div');chip.className='hint-chip'+(hintsUsed.includes(i)?' used':'');
+      chip.style.borderColor='rgba(255,0,193,0.4)';chip.style.color='var(--p)';
+      chip.textContent=hintsUsed.includes(i)?'HINT '+(i+1)+' USED':'🔑 DIGIT '+(i+1);
+      if(!hintsUsed.includes(i))chip.onclick=()=>{
+        SFX.click();hintsUsed.push(i);
+        const hb=document.createElement('div');hb.className='hint-box';
+        hb.style.borderColor='var(--p)';hb.style.color='#ff99dd';
+        hb.textContent='🔑 Digit '+(i+1)+': '+h;
+        body.appendChild(hb);log('Master hint accessed for digit '+(i+1),'tl-o');
+      };
+      hintRow.appendChild(chip);
+    });
+    body.appendChild(hintRow);
+  };
+
+  const checkFinal=()=>{
+    if(input.join('')===lv.code.join('')){
+      solved=true;render();
+      SFX.levelup();
+      log('🔑 MASTER KEY ACCEPTED: '+input.join(''),'tl-gold');
+      log('🚨 ROOT ACCESS GRANTED — ALL SECTORS COMPROMISED','tl-gold');
+      updateScore(Math.max(200,lv.xp-hintsUsed.length*60));
+      setTimeout(()=>{completeLevelById(3);showWin();},1500);
+    }else{
+      attempts--;
+      SFX.error();
+      log('❌ WRONG KEY: '+input.join('')+' — '+attempts+' attempts left','tl-r');
+      const slots=document.querySelectorAll('.digit-slot');
+      slots.forEach(s=>s.classList.add('wrong'));
+      setTimeout(()=>{input=[];if(attempts<=0)attempts=5;render();},800);
+    }
+  };
+  render();
+}
+
+function completeLevelById(id){
+  levels[id].done=true;
+  if(id+1<levels.length) levels[id+1].unlocked=true;
+  updateBreach();
+  renderLevels();
+  const xpBonus=Math.round(timerSec<120?200:timerSec<300?100:50);
+  log('⚡ SECTOR '+(id+1)+' COMPLETE — BONUS XP +'+xpBonus,'tl-gold');
+  updateScore(xpBonus);
+  if(id+1<levels.length){
+    log('◈ SECTOR '+(String.fromCharCode(66+id))+' NOW ACCESSIBLE','tl-c');
+    setTimeout(()=>loadLevel(id+1),800);
+  }
+}
+
+function showWin(){
+  clearInterval(timerInterval);
+  // Spawn particles
+  const emojis=['💀','⚡','🔓','🖥️','💾','🔑','⚠️','🛡️'];
+  for(let i=0;i<40;i++){
+    setTimeout(()=>{
+      const p=document.createElement('div');
+      p.className='particle';
+      p.style.cssText=`left:${Math.random()*100}vw;top:-20px;animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()}s;`;
+      p.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(),6000);
+    },i*100);
+  }
+  document.getElementById('successScreen').classList.add('show');
+}
+
+function resetGame(){
+  document.getElementById('successScreen').classList.remove('show');
+  score=0;timerSec=0;
+  document.getElementById('scoreVal').textContent='0';
+  document.getElementById('timerVal').textContent='--:--';
+  levels.forEach((l,i)=>{l.done=false;l.unlocked=i===0;});
+  updateBreach();renderLevels();
+  clearInterval(timerInterval);startTimer();
+  document.getElementById('puzzleBody').innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;color:rgba(0,255,65,0.3);font-size:0.85rem;letter-spacing:2px;">▸ Select a security sector above to begin infiltration...</div>';
+  document.getElementById('puzzleTitle').textContent='SELECT A SECTOR';
+  document.getElementById('puzzleTag').textContent='OFFLINE';
+  log('--- SYSTEM RESET — NEW MISSION INITIALIZED ---','tl-c');
+}
+
+init();
+</script>
+</body>
+</html>
